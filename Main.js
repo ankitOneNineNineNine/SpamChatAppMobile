@@ -13,6 +13,10 @@ import { MsgContextProvider } from "./infrastructure/context/message.context";
 import Navigation from "./infrastructure/navigation";
 import { GET } from "./adapters/http.adapter";
 import { getToken } from "./common/getSetToken";
+import {
+  getCurrentMsging,
+  setCurrentMsging,
+} from "./common/getSetCurrentMsging";
 
 const logger = createLogger();
 const rootReducer = combineReducers({
@@ -31,10 +35,11 @@ export default function Main() {
   const user = useSelector((state) => state.user.user);
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const [msgRing, setMsgRing] = useState(null);
-  useEffect(() => {
-    let ring = new Audio(process.env.PUBLIC_URL + "/newMsg.mp3");
-    setMsgRing(ring);
-  }, []);
+  // useEffect(() => {
+  //   let ring = new Audio(process.env.PUBLIC_URL + "/newMsg.mp3");
+  //   setMsgRing(ring);
+  // }, []);
+
   const seenMessage = () => {
     let msg = messages;
 
@@ -121,7 +126,7 @@ export default function Main() {
       });
       socket.on("newFriend", async (msg) => {
         displaySuccess(msg.msg);
-        dispatch(setUser({ token:await getToken() }));
+        dispatch(setUser({ token: await getToken() }));
         GET("/notifs", true).then((n) => {
           setNotifs([...n]);
         });

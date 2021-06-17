@@ -7,28 +7,40 @@ import {
   Paragraph,
   Divider,
 } from "react-native-paper";
-import { Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { Ionicons } from "react-native-vector-icons";
-const LeftContent = (props) => <Avatar.Icon {...props} icon="person" />;
+import { removeToken } from "../../../common/getSetToken";
+import SafeArea from "../../../components/safeArea.component";
+import { setUser } from "../../../common/actions";
+import { useDispatch, useSelector } from "react-redux";
+import ProfileCard from "../../../components/profileCard.component";
 
-const Profile = () => (
-  <Card>
-    <Card.Title title="Ankit Pradhan" subtitle="online" left={LeftContent} />
-    <Card.Cover source={{ uri: "https://picsum.photos/700" }} />
-    <Card.Actions mode="elevated">
-      <Button>Edit</Button>
-      <Button style={{ marginLeft: "auto" }}>
-        <Ionicons size={24} name="person-add-outline" />
+const Profile = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+  return (
+    <SafeArea>
+      <ProfileCard user={user} me={true} />
+
+      <Button
+        style={styles.logoutBtn}
+        icon="logout"
+        mode="contained"
+        onPress={() => {
+          removeToken();
+          dispatch(setUser("logout"));
+        }}
+      >
+        Logout
       </Button>
-    </Card.Actions>
-    <Divider />
-    <Card.Content>
-      <Title>Ankit Pradhan</Title>
-      <Title>pradhanankit12@gmail.com</Title>
-      <Title>pradhanankit12</Title>
-      <Title>Radhe Radhe</Title>
-    </Card.Content>
-  </Card>
-);
+    </SafeArea>
+  );
+};
 
 export default Profile;
+
+const styles = StyleSheet.create({
+  logoutBtn: {
+    marginTop: 30,
+  },
+});

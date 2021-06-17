@@ -8,9 +8,15 @@ import {
   SEARCH_PENDING,
   SEARCH_SUCCESS,
   CURRENT_MSGING,
+  USER_LOGOUT,
 } from "./types";
 
 export const setUser = (credentials) => {
+  if (credentials === "logout") {
+    return (dispatch) => {
+      dispatch({ type: USER_LOGOUT });
+    };
+  }
   return async (dispatch) => {
     dispatch({ type: SET_USER_PENDING });
     try {

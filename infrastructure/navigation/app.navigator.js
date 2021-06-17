@@ -4,10 +4,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { ChatNavigator } from "./chat.navigator";
-import Appbar from "../../components/AppBar.component";
+
 import { removeToken } from "../../common/getSetToken";
 import Friends from "../../features/Friends/screen/friends.screen";
 import Profile from "../../features/Profile/screen/profile.screen";
+import Home from "../../features/Home/screen/home.screen";
+import { NoAuthNavigator } from "./noAuth.navigator";
 
 const Tab = createBottomTabNavigator();
 
@@ -24,7 +26,6 @@ const ScreenOptions = ({ routeName, size, color }) => {
 export const AppNavigator = () => {
   return (
     <>
-      <Appbar />
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {

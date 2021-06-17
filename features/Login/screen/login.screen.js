@@ -1,6 +1,12 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { Avatar, TextInput, Button } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../../common/actions";
@@ -9,6 +15,7 @@ import { getToken } from "../../../common/getSetToken";
 function Login({ navigation }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
+  const loading = useSelector((state) => state.user.isLoading);
   const [credentials, setCredentials] = useState({});
 
   const onLogin = async (e) => {
@@ -20,10 +27,20 @@ function Login({ navigation }) {
     // getToken().then((token) => {
     //   console.log(token);
     if (user && Object.keys(user).length) {
-      navigation.navigate("Chat");
+      navigation.navigate("Home");
     }
     // });
   }, [user]);
+  if (loading) {
+    return (
+      <ActivityIndicator
+        style={{ marginTop: 30 }}
+        size="large"
+        animating={true}
+        color="blue"
+      />
+    );
+  }
   return (
     <View style={styles.paper}>
       <Avatar.Icon style={styles.avatar} size={24} icon="folder" />
@@ -75,14 +92,14 @@ export default Login;
 
 const styles = StyleSheet.create({
   paper: {
-    marginTop: "25%",
+    marginTop: 25,
     display: "flex",
     flexDirection: "column",
   },
   header: {
-    fontSize: "25px",
+    fontSize: 30,
     alignSelf: "center",
-    fontWeight: "bolder",
+    fontWeight: "bold",
   },
   avatar: {
     margin: 20,

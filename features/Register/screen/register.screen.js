@@ -201,14 +201,14 @@ export default Register;
 
 const styles = StyleSheet.create({
   paper: {
-    marginTop: "10%",
+    marginTop: 20,
     display: "flex",
     flexDirection: "column",
   },
   header: {
-    fontSize: "25px",
+    fontSize: 30,
     alignSelf: "center",
-    fontWeight: "bolder",
+    fontWeight: "bold",
   },
   avatar: {
     margin: 20,

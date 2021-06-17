@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { Searchbar } from "react-native-paper";
 
-function Search() {
+function Search({ friends = false }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const onChangeSearch = (query) => setSearchQuery(query);
 
   return (
     <Searchbar
-      placeholder="Search People"
+      placeholder={friends ? "Search Friends" : "Search People"}
       onChangeText={onChangeSearch}
       value={searchQuery}
     />
@@ -18,6 +18,4 @@ function Search() {
 
 export default Search;
 
-const styles = StyleSheet.create({
-
-});
+const styles = StyleSheet.create({});

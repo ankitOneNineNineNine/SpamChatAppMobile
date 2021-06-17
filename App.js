@@ -10,7 +10,7 @@ import { setUser, searchPeople, setCurrentMessaging } from "./common/reducers";
 import Home from "./features/Home/screen/home.screen";
 import Navigation from "./infrastructure/navigation";
 import Main from "./Main";
-
+import SafeArea from "./components/safeArea.component";
 const logger = createLogger();
 const rootReducer = combineReducers({
   user: setUser,
