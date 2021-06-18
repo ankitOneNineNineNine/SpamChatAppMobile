@@ -1,5 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native-paper";
 import { useSelector } from "react-redux";
 import { getToken } from "../../common/getSetToken";
 import { AppNavigator } from "./app.navigator";
@@ -7,7 +8,9 @@ import { NoAuthNavigator } from "./noAuth.navigator";
 
 export default function Navigation() {
   let [isAuthenticated, setIsAuthenticated] = useState(false);
-  const user = useSelector((state) => state.user.user);
+  const userState = useSelector((state) => state.user);
+  const { user, isLoading } = userState;
+
   async function authenticated() {
     try {
       if (user) {
@@ -30,6 +33,7 @@ export default function Navigation() {
   useEffect(() => {
     authenticated();
   }, [user]);
+
   return (
     <>
       <NavigationContainer>

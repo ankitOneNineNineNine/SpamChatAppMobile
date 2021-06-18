@@ -33,6 +33,7 @@ export const setUser = (state = initialState, action) => {
     case USER_LOGOUT:
       return {
         ...state,
+        isLoading: false,
         user: null,
       };
     // case SET_USER_FAILURE:

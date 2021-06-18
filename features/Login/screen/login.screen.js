@@ -14,8 +14,9 @@ import { getToken } from "../../../common/getSetToken";
 
 function Login({ navigation }) {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
-  const loading = useSelector((state) => state.user.isLoading);
+  const userState = useSelector((state) => state.user);
+  const { user, isLoading } = userState;
+ 
   const [credentials, setCredentials] = useState({});
 
   const onLogin = async (e) => {
@@ -31,7 +32,7 @@ function Login({ navigation }) {
     }
     // });
   }, [user]);
-  if (loading) {
+  if (isLoading) {
     return (
       <ActivityIndicator
         style={{ marginTop: 30 }}

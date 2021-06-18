@@ -6,6 +6,7 @@ import {
   Title,
   Paragraph,
   Divider,
+  ActivityIndicator,
 } from "react-native-paper";
 import { StyleSheet, Text } from "react-native";
 import { Ionicons } from "react-native-vector-icons";
@@ -15,9 +16,10 @@ import { setUser } from "../../../common/actions";
 import { useDispatch, useSelector } from "react-redux";
 import ProfileCard from "../../../components/profileCard.component";
 
-const Profile = ({ navigation }) => {
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+const Profile = ({ logout }) => {
+  const userState = useSelector((state) => state.user);
+  const { user, isLoading } = userState;
+
   return (
     <SafeArea>
       <ProfileCard user={user} me={true} />
@@ -26,10 +28,7 @@ const Profile = ({ navigation }) => {
         style={styles.logoutBtn}
         icon="logout"
         mode="contained"
-        onPress={() => {
-          removeToken();
-          dispatch(setUser("logout"));
-        }}
+        onPress={() => logout()}
       >
         Logout
       </Button>

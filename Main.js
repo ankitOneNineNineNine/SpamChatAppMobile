@@ -17,6 +17,7 @@ import {
   getCurrentMsging,
   setCurrentMsging,
 } from "./common/getSetCurrentMsging";
+import { ActivityIndicator } from "react-native-paper";
 
 const logger = createLogger();
 const rootReducer = combineReducers({
@@ -32,7 +33,9 @@ export default function Main() {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [notifs, setNotifs] = useState([]);
-  const user = useSelector((state) => state.user.user);
+  const userState = useSelector((state) => state.user);
+  const { user, isLoading } = userState;
+ 
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const [msgRing, setMsgRing] = useState(null);
   // useEffect(() => {

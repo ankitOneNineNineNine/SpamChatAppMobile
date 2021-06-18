@@ -10,6 +10,8 @@ import Friends from "../../features/Friends/screen/friends.screen";
 import Profile from "../../features/Profile/screen/profile.screen";
 import Home from "../../features/Home/screen/home.screen";
 import { NoAuthNavigator } from "./noAuth.navigator";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../common/actions";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +25,15 @@ const ScreenOptions = ({ routeName, size, color }) => {
   return <Ionicons name={TAB_ICON[routeName]} size={size} color={color} />;
 };
 
-export const AppNavigator = () => {
+export const AppNavigator = ({ navigation }) => {
+  const dispatch = useDispatch();
+  console.log(navigation);
+
+  const logout = async () => {
+    navigation.navigate("Login");
+    removeToken();
+    dispatch(setUser("logout"));
+  };
   return (
     <>
       <Tab.Navigator
@@ -41,7 +51,9 @@ export const AppNavigator = () => {
       >
         <Tab.Screen name="Chat" component={ChatNavigator} />
         <Tab.Screen name="Friends" component={Friends} />
-        <Tab.Screen name="Profile" component={Profile} />
+        <Tab.Screen name="Profile">
+          {(props) => <Profile {...props} logout={logout} />}
+        </Tab.Screen>
       </Tab.Navigator>
     </>
   );

@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Text, FlatList, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import {
   Chip,
   Appbar,
@@ -21,10 +28,13 @@ import {
 } from "../../../common/getSetCurrentMsging";
 import { setCurrentMessaging } from "../../../common/actions";
 import moment from "moment";
-function Home() {
+
+function Home({ navigation }) {
   const listRef = useRef(null);
   const [msgNav, setMsgNav] = useState("inbox");
-  const user = useSelector((state) => state.user.user);
+  const userState = useSelector((state) => state.user);
+  const { user, isLoading } = userState;
+
   const { messages, setMsg } = useContext(MsgContext);
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const { socket, setSocket } = useContext(SocketContext);
@@ -41,7 +51,9 @@ function Home() {
       }
     })();
   }, []);
-
+  const search = () => {
+    navigation.navigate("People");
+  };
   let filteredMessages = [];
   if (currentMsging && currentMsging._id) {
     if (messages.length) {
@@ -74,19 +86,29 @@ function Home() {
       />
     );
   }
+
   return (
     <SafeArea>
-      <Search />
+      <Search search={search} />
+
       <View>
         <Appbar.Header style={{ backgroundColor: "rgb(106,106,232)" }}>
-          <Appbar.Content
-            title={
-              currentMsging.fullname
-                ? currentMsging.fullname
-                : currentMsging.name
-            }
-            subtitle={"Online"}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("Info", {
+                profileUser: currentMsging,
+              });
+            }}
+          >
+            <Appbar.Content
+              title={
+                currentMsging.fullname
+                  ? currentMsging.fullname
+                  : currentMsging.name
+              }
+              subtitle={"Online"}
+            />
+          </TouchableOpacity>
         </Appbar.Header>
       </View>
       <View style={styles.msgsNav}>
@@ -126,7 +148,18 @@ function Home() {
                 "MMMM Do YYYY, h:mm:ss a"
               )}`}
               description={item.text}
-              left={(props) => <Avatar.Icon size={40} icon="folder" />}
+              left={(props) =>
+                item.from.image ? (
+                  <Avatar.Image
+                    size={45}
+                    source={{
+                      uri: item.from.image,
+                    }}
+                  />
+                ) : (
+                  <Avatar.Text size={45} label={item.from.fullname.charAt(0)} />
+                )
+              }
             />
             <View style={styles.msgImgContainer}>
               {item.images.map((image, i) => (
