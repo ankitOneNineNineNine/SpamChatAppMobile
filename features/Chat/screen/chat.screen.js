@@ -27,9 +27,10 @@ import {
   setCurrentMsging,
 } from "../../../common/getSetCurrentMsging";
 import { setCurrentMessaging } from "../../../common/actions";
-import moment from "moment";
 
-function Home({ navigation }) {
+import MessageComponent from "../../../components/message.component";
+
+function Chat({ navigation }) {
   const listRef = useRef(null);
   const [msgNav, setMsgNav] = useState("inbox");
   const userState = useSelector((state) => state.user);
@@ -51,9 +52,7 @@ function Home({ navigation }) {
       }
     })();
   }, []);
-  const search = () => {
-    navigation.navigate("People");
-  };
+
   let filteredMessages = [];
   if (currentMsging && currentMsging._id) {
     if (messages.length) {
@@ -89,16 +88,20 @@ function Home({ navigation }) {
 
   return (
     <SafeArea>
-      <Search search={search} />
-
       <View>
-        <Appbar.Header style={{ backgroundColor: "rgb(106,106,232)" }}>
+        <Appbar.Header
+          style={{
+            height: 50,
+            zIndex: -1,
+            backgroundColor: "rgb(106,106,232)",
+          }}
+        >
           <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("Info", {
-                profileUser: currentMsging,
-              });
-            }}
+          // onPress={() => {
+          //   navigation.navigate("Info", {
+          //     profileUser: currentMsging,
+          //   });
+          // }}
           >
             <Appbar.Content
               title={
@@ -106,31 +109,32 @@ function Home({ navigation }) {
                   ? currentMsging.fullname
                   : currentMsging.name
               }
-              subtitle={"Online"}
+              subtitle={currentMsging.status}
             />
           </TouchableOpacity>
         </Appbar.Header>
-      </View>
-      <View style={styles.msgsNav}>
-        <Chip
-          type="outlined"
-          selected={msgNav === "inbox"}
-          icon="inbox"
-          onPress={() => setMsgNav("inbox")}
-        >
-          Inbox
-        </Chip>
+        <View style={styles.msgsNav}>
+          <Chip
+            type="outlined"
+            selected={msgNav === "inbox"}
+            icon="inbox"
+            onPress={() => setMsgNav("inbox")}
+          >
+            Inbox
+          </Chip>
 
-        <Chip
-          type="outlined"
-          selected={msgNav === "spam"}
-          style={styles.chips}
-          icon="message-text-clock"
-          onPress={() => setMsgNav("spam")}
-        >
-          Spam
-        </Chip>
+          <Chip
+            type="outlined"
+            selected={msgNav === "spam"}
+            style={styles.chips}
+            icon="message-text-clock"
+            onPress={() => setMsgNav("spam")}
+          >
+            Spam
+          </Chip>
+        </View>
       </View>
+
       <FlatList
         style={styles.msgList}
         ref={listRef}
@@ -139,40 +143,12 @@ function Home({ navigation }) {
         }
         data={filteredMessages}
         renderItem={({ item, i }) => (
-          <View
+          <MessageComponent
+            msg={item}
+            myID={user._id}
             key={item._id}
-            style={item.from._id === user._id ? styles.mine : styles.other}
-          >
-            <List.Item
-              title={`${item.from.fullname} ${moment(item.createdAt).format(
-                "MMMM Do YYYY, h:mm:ss a"
-              )}`}
-              description={item.text}
-              left={(props) =>
-                item.from.image ? (
-                  <Avatar.Image
-                    size={45}
-                    source={{
-                      uri: item.from.image,
-                    }}
-                  />
-                ) : (
-                  <Avatar.Text size={45} label={item.from.fullname.charAt(0)} />
-                )
-              }
-            />
-            <View style={styles.msgImgContainer}>
-              {item.images.map((image, i) => (
-                <Image
-                  key={i}
-                  source={{
-                    uri: image,
-                  }}
-                  style={styles.msgImg}
-                />
-              ))}
-            </View>
-          </View>
+            details={true}
+          />
         )}
       />
       <TextInput
@@ -187,49 +163,19 @@ function Home({ navigation }) {
   );
 }
 
-export default Home;
+export default Chat;
 
 const styles = StyleSheet.create({
   msgsNav: {
-    position: "absolute",
-    top: 100,
-    left: "50%",
-    marginLeft: 25,
-    zIndex: 1,
+    position: "relative",
+    top: 0,
+    zIndex: 5000,
     display: "flex",
-    justifyContent: "center",
     flexDirection: "row",
-    textAlign: "center",
+    justifyContent: "space-around",
   },
   msgList: {
     height: "100%",
     flexGrow: 0,
-  },
-  msgImgContainer: {
-    display: "flex",
-    justifyContent: "space-around",
-    marginLeft: 40,
-    marginRight: 40,
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  msgImg: {
-    width: 100,
-    height: 100,
-  },
-  mine: {
-    backgroundColor: "rgb(149,149,237)",
-    borderRadius: 40,
-    padding: 5,
-    width: "95%",
-    alignSelf: "flex-end",
-    margin: 2,
-  },
-  other: {
-    backgroundColor: "rgb(217,217,239)",
-    borderRadius: 40,
-    padding: 5,
-    width: "95%",
-    margin: 2,
   },
 });

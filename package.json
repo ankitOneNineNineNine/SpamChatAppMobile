@@ -22,6 +22,7 @@
     "react-dom": "16.13.1",
     "react-lazy-load-image-component": "^1.5.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
+    "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-lazyload": "^1.1.0",
     "react-native-paper": "^4.9.1",

@@ -182,7 +182,7 @@ function Register({ navigation }) {
           {formError?.password}
         </Text>
         <Button
-          type="contained"
+          mode="contained"
           style={styles.submit}
           color="blue"
           onPress={onRegister}

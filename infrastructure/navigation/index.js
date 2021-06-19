@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native-paper";
 import { useSelector } from "react-redux";
 import { getToken } from "../../common/getSetToken";
+
 import { AppNavigator } from "./app.navigator";
 import { NoAuthNavigator } from "./noAuth.navigator";
 

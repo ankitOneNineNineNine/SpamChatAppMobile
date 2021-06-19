@@ -7,7 +7,7 @@ import { applyMiddleware, combineReducers, createStore } from "redux";
 import { createLogger } from "redux-logger";
 import thunk from "redux-thunk";
 import { setUser, searchPeople, setCurrentMessaging } from "./common/reducers";
-import Home from "./features/Home/screen/home.screen";
+
 import Navigation from "./infrastructure/navigation";
 import Main from "./Main";
 import SafeArea from "./components/safeArea.component";

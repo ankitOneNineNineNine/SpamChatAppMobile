@@ -68,7 +68,7 @@ function Login({ navigation }) {
         />
 
         <Button
-          type="contained"
+          mode="contained"
           style={styles.submit}
           color="blue"
           onPress={onLogin}
