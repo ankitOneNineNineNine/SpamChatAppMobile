@@ -6,19 +6,20 @@ import { Provider, useDispatch, useSelector } from "react-redux";
 import { applyMiddleware, combineReducers, createStore } from "redux";
 import { createLogger } from "redux-logger";
 import thunk from "redux-thunk";
-import { setUser, searchPeople, setCurrentMessaging } from "./common/reducers";
+import { setUser, searchPeople, setCurrentMessaging } from "./common/actions";
 import { NotifContextProvider } from "./infrastructure/context/notification.context";
 import { SocketContextProvider } from "./infrastructure/context/socket.context";
 import { MsgContextProvider } from "./infrastructure/context/message.context";
 import Navigation from "./infrastructure/navigation";
-import { GET } from "./adapters/http.adapter";
+import { GET, PUT } from "./adapters/http.adapter";
 import { getToken } from "./common/getSetToken";
 import {
   getCurrentMsging,
   setCurrentMsging,
 } from "./common/getSetCurrentMsging";
 import { ActivityIndicator } from "react-native-paper";
-
+import * as io from "socket.io-client";
+import { BEURL } from "./config";
 const logger = createLogger();
 const rootReducer = combineReducers({
   user: setUser,
@@ -35,7 +36,7 @@ export default function Main() {
   const [notifs, setNotifs] = useState([]);
   const userState = useSelector((state) => state.user);
   const { user, isLoading } = userState;
- 
+  const [hash, setHash] = useState(null);
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const [msgRing, setMsgRing] = useState(null);
   // useEffect(() => {
@@ -57,7 +58,12 @@ export default function Main() {
       let done = await PUT(`/messages/${ms._id}`, { seen: true }, true);
     });
   };
-
+  useEffect(() => {
+    (async function () {
+      let h = await getToken();
+      setHash(h);
+    })();
+  }, []);
   useEffect(() => {
     seenMessage();
   }, [currentMsging?._id]);
@@ -67,22 +73,20 @@ export default function Main() {
   }, [messages]);
 
   useEffect(() => {
-    (async function () {
-      let hash = await getToken();
-      if (hash) {
-        dispatch(setUser({ token: hash }));
-      }
-      if (hash) {
-        let s = io(BEURL, {
-          auth: {
-            token: getToken(),
-          },
-        });
+    console.log(io);
 
-        setSocket(s);
-      }
-    })();
-  }, [getToken()]);
+    if (hash) {
+      dispatch(setUser({ token: hash }));
+
+      let s = io.connect(BEURL, {
+        auth: {
+          token: hash,
+        },
+      });
+      console.log(hash, s);
+      setSocket(s);
+    }
+  }, [hash]);
 
   useEffect(() => {
     GET("/messages", true).then((m) => {
@@ -98,10 +102,10 @@ export default function Main() {
       socket.on("msgR", function (msg) {
         if (messages.findIndex((ms) => ms._id !== msg._id)) {
           if (msg.from._id !== user?._id) {
-            msgRing
-              .play()
-              .then((_) => {})
-              .catch((_) => {});
+            // msgRing
+            //   .play()
+            //   .then((_) => {})
+            //   .catch((_) => {});
           }
           setMessages((state) => [...state, msg]);
         }

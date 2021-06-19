@@ -12,6 +12,7 @@ import {
 } from "./types";
 
 export const setUser = (credentials) => {
+
   if (credentials === "logout") {
     return (dispatch) => {
       dispatch({ type: USER_LOGOUT });
@@ -20,6 +21,7 @@ export const setUser = (credentials) => {
   return async (dispatch) => {
     dispatch({ type: SET_USER_PENDING });
     try {
+    
       const { user, token } = await POST("/auth/login", credentials);
       const hash = await setToken(token);
       dispatch({ type: SET_USER_SUCCESS, payload: user });

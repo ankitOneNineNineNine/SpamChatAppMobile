@@ -1,8 +1,8 @@
 import React from "react";
-import { View, Image, StyleSheet } from "react-native";
+import { View, Image, Text, StyleSheet } from "react-native";
 import { Avatar, List } from "react-native-paper";
 import moment from "moment";
-export default function MessageComponent({ msg, myID, detail = false }) {
+export default function MessageComponent({ msg, myID, details = false }) {
   return (
     <View style={msg.from._id === myID ? styles.mine : styles.other}>
       <List.Item
@@ -23,9 +23,9 @@ export default function MessageComponent({ msg, myID, detail = false }) {
           )
         }
       />
-      {detail ? (
+      {details ? (
         <View style={styles.msgImgContainer}>
-          {msg.images.map((image, i) => (
+          {msg.images?.map((image, i) => (
             <Image
               key={i}
               source={{
@@ -35,7 +35,7 @@ export default function MessageComponent({ msg, myID, detail = false }) {
             />
           ))}
         </View>
-      ) : msg.images.length ? (
+      ) : msg.images?.length ? (
         <Text>FILE MESSAGE</Text>
       ) : null}
     </View>

@@ -54,19 +54,23 @@ export default function Friends({ navigation, ...rest }) {
       />
 
       <Divider />
-      <Title style={{ textAlign: "center" }}>Groups</Title>
-      <FlatList
-        data={user.groups}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item, i }) => (
-          <TinyProfile
-            key={item._id}
-            changeCurrentMsg={changeCurrentMsg}
-            profile={item}
-            showProfile={showProfile}
+      {user.groups.length ? (
+        <>
+          <Title style={{ textAlign: "center" }}>Groups</Title>
+          <FlatList
+            data={user.groups}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item, i }) => (
+              <TinyProfile
+                key={item._id}
+                changeCurrentMsg={changeCurrentMsg}
+                profile={item}
+                showProfile={showProfile}
+              />
+            )}
           />
-        )}
-      />
+        </>
+      ) : null}
     </SafeArea>
   );
 }

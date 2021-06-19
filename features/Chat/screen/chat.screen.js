@@ -27,8 +27,11 @@ import {
   setCurrentMsging,
 } from "../../../common/getSetCurrentMsging";
 import { setCurrentMessaging } from "../../../common/actions";
-
+import * as ImagePicker from "expo-image-picker";
 import MessageComponent from "../../../components/message.component";
+import { Platform } from "react-native";
+import { POST } from "../../../adapters/http.adapter";
+import { displayError } from "../../../common/toaster";
 
 function Chat({ navigation }) {
   const listRef = useRef(null);
@@ -36,22 +39,89 @@ function Chat({ navigation }) {
   const userState = useSelector((state) => state.user);
   const { user, isLoading } = userState;
 
+  const [textMsg, setTextMsg] = useState("");
+  const [images, setImages] = useState([]);
   const { messages, setMsg } = useContext(MsgContext);
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const { socket, setSocket } = useContext(SocketContext);
   const dispatch = useDispatch();
-  useEffect(() => {
-    (async function () {
-      let currentMsgingLocal = await getCurrentMsging();
 
-      if (currentMsgingLocal) {
-        dispatch(setCurrentMessaging(currentMsgingLocal));
-      } else if (user) {
-        dispatch(setCurrentMessaging(user.friends[0]));
-        await setCurrentMsging(user.friends[0]);
+  const selectImage = async () => {
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    setImages([...images, result]);
+  };
+
+  const removeImage = (i) => {
+    let imgs = [...images];
+    imgs.splice(i, 1);
+
+    setImages(imgs);
+  };
+  const messageSend = () => {
+    if (!textMsg.length && !images.length) {
+      return;
+    }
+
+    if (images.length) {
+      let formData = new FormData();
+      formData.append("textMsg", textMsg);
+      formData.append("from", user._id);
+      if (currentMsging.fullname) {
+        formData.append("toInd", currentMsging._id);
+      } else {
+        formData.append("toGrp", currentMsging._id);
       }
-    })();
-  }, []);
+      images.forEach((image) => {
+        let localUri = image.uri;
+        let filename = localUri.split('/').pop();
+      
+        let match = /\.(\w+)$/.exec(filename);
+        let type = match ? `image/${match[1]}` : `image`;
+      
+        formData.append("images", {
+          uri: localUri, name: filename, type 
+        });
+      });
+      POST("/messages/", formData, true, "multipart/form-data")
+        .then((data) => {
+          console.log("here", data);
+          socket.emit("imgMsg", data);
+        })
+        .catch((err) => {
+          console.log(err);
+          displayError(err?.response?.data?.message);
+        });
+    } else {
+      let receiver = currentMsging.fullname
+        ? {
+            toInd: currentMsging._id,
+          }
+        : {
+            toGrp: currentMsging._id,
+          };
+      let msg = {
+        ...receiver,
+        from: user._id,
+        text: textMsg,
+      };
+      socket.emit("msgS", msg);
+    }
+    setTextMsg("");
+    setImages([]);
+  };
 
   let filteredMessages = [];
   if (currentMsging && currentMsging._id) {
@@ -151,13 +221,31 @@ function Chat({ navigation }) {
           />
         )}
       />
+      <View style={styles.selectedImage}>
+        {images.length
+          ? images.map((image, i) => (
+              <View>
+                <Image
+                  source={{ uri: image.uri }}
+                  style={{ width: 100, height: 100 }}
+                />
+                <TouchableOpacity
+                  style={styles.removeIcon}
+                  onPress={() => removeImage(i)}
+                >
+                  <Ionicons name="trash" size={25} color="red" />
+                </TouchableOpacity>
+              </View>
+            ))
+          : null}
+      </View>
       <TextInput
         placeholder="Type your message"
-        // value={text}
+        value={textMsg}
         multiline={true}
-        left={<TextInput.Icon name="image" />}
-        right={<TextInput.Icon name="send" />}
-        // onChangeText={(text) => setText(text)}
+        left={<TextInput.Icon name="image" onPress={selectImage} />}
+        right={<TextInput.Icon name="send" onPress={messageSend} />}
+        onChangeText={(text) => setTextMsg(text)}
       />
     </SafeArea>
   );
@@ -177,5 +265,15 @@ const styles = StyleSheet.create({
   msgList: {
     height: "100%",
     flexGrow: 0,
+  },
+  selectedImage: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  removeIcon: {
+    position: "absolute",
+    top: 0,
+
+    right: 0,
   },
 });
