@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 
 export const MessagesNavigator = () => {
   return (
-    <Stack.Navigator headerMode="none">
+    <Stack.Navigator headerMode="none"  >
       <Stack.Screen name="Main" component={Messages} />
       <Stack.Screen name="Chat" component={Chat} />
     </Stack.Navigator>

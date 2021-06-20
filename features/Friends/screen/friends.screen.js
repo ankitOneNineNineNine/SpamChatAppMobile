@@ -41,7 +41,7 @@ export default function Friends({ navigation, ...rest }) {
       <Search search={search} />
       <Title style={{ textAlign: "center" }}>People</Title>
       <FlatList
-        data={user.friends}
+        data={user?.friends}
         keyExtractor={(item) => item._id}
         renderItem={({ item, i }) => (
           <TinyProfile
@@ -54,11 +54,11 @@ export default function Friends({ navigation, ...rest }) {
       />
 
       <Divider />
-      {user.groups.length ? (
+      {user?.groups.length ? (
         <>
           <Title style={{ textAlign: "center" }}>Groups</Title>
           <FlatList
-            data={user.groups}
+            data={user?.groups}
             keyExtractor={(item) => item._id}
             renderItem={({ item, i }) => (
               <TinyProfile

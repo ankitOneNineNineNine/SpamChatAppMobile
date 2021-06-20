@@ -36,13 +36,13 @@ export const setUser = (state = initialState, action) => {
         isLoading: false,
         user: null,
       };
-    // case SET_USER_FAILURE:
-    //     return {
-    //         ...state,
-    //         isLoading: false,
-    //         error: action.payload
-    //     }
-    // break;
+    case SET_USER_FAILURE:
+        return {
+            ...state,
+            isLoading: false,
+            error: action.payload
+        }
+    break;
     default:
       return state;
   }

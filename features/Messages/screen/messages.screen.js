@@ -13,7 +13,7 @@ export default function Messages({ navigation }) {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
 
-  let filterMessages = messages.filter((m) => m?.from?._id !== user._id);
+  let filterMessages = messages.filter((m) => m?.from?._id !== user?._id);
   let notificationMessages = [];
   let otherMessages = [];
   filterMessages.forEach((msg) => {
@@ -56,7 +56,7 @@ export default function Messages({ navigation }) {
                     New
                   </Button>
                 )}
-                <MessageComponent msg={item} myID={user._id} key={item._id} />
+                <MessageComponent msg={item} myID={user?._id} key={item._id} />
               </TouchableOpacity>
             </View>
           )}

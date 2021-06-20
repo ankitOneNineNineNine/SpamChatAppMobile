@@ -17,6 +17,7 @@ import { NotifContext } from "../context/notification.context";
 import Notifications from "../../features/Notifications/screen/notifications.screen";
 import Messages from "../../features/Messages/screen/messages.screen";
 import { MessagesNavigator } from "./messages.navigator";
+import { SocketContext } from "../context/socket.context";
 
 const Tab = createBottomTabNavigator();
 
@@ -57,11 +58,16 @@ export const AppNavigator = ({ navigation }) => {
   const { messages } = useContext(MsgContext);
   const { notifications } = useContext(NotifContext);
   const user = useSelector((state) => state.user.user);
+  const { socket, setSocket } = useContext(SocketContext);
 
   const logout = async () => {
-    navigation && navigation.navigate("Login");
+    if (socket) {
+      socket.emit("logout", "logout");
+      setSocket(null);
+    }
     removeToken();
     dispatch(setUser("logout"));
+    navigation && navigation.navigate("Login");
   };
   return (
     <>
@@ -77,8 +83,8 @@ export const AppNavigator = ({ navigation }) => {
                 notifLength={
                   notifications.filter((n) => {
                     return (
-                      (n.to?._id == user._id && !n.accepted) ||
-                      (n.from?._id == user._id && n.accepted)
+                      (n.to?._id == user?._id && !n.accepted) ||
+                      (n.from?._id == user?._id && n.accepted)
                     );
                   }).length
                 }

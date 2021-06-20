@@ -23,7 +23,7 @@ export default function People() {
                 key={item._id}
                 user={item}
                 friend={
-                  user.friends.findIndex((friend) => friend._id === item._id) >
+                  user?.friends.findIndex((friend) => friend._id === item._id) >
                   -1
                 }
               />

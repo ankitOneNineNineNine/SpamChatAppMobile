@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar, TextInput, Button } from "react-native-paper";
-import { GET } from "../../../adapters/http.adapter";
-import { displayError } from "../../../common/toaster";
+import { GET, POST } from "../../../adapters/http.adapter";
+import { displayError, displaySuccess } from "../../../common/toaster";
+import SafeArea from "../../../components/safeArea.component";
 
 function Register({ navigation }) {
   const [usedCreds, setUsedCreds] = useState([]);
@@ -108,7 +109,6 @@ function Register({ navigation }) {
     }
   };
   const onRegister = async (e) => {
-    e.preventDefault();
     let error = false;
 
     let errKeys = Object.keys(formError);
@@ -119,89 +119,91 @@ function Register({ navigation }) {
         break;
       }
     }
-
-    // if (!error) {
-    //   try {
-    //     let response = await POST("/auth/register", credentials);
-
-    //   } catch (err) {
-
-    //   }
-    // }
+    if (!error) {
+      try {
+        let response = await POST("/auth/register", credentials);
+        navigation.navigate("Login");
+        displaySuccess("Successfully Created");
+      } catch (err) {
+        console.log(err);
+      }
+    }
   };
   return (
-    <View style={styles.paper}>
-      <Avatar.Icon style={styles.avatar} size={24} icon="folder" />
-      <Text style={styles.header}>Register</Text>
-      <View style={styles.form}>
-        <TextInput
-          type="outlined"
-          style={styles.textInput}
-          label="Fullname"
-          name="fullname"
-          onChangeText={(text) =>
-            setCredentials({ ...credentials, fullname: text })
-          }
-        />
-        <Text style={styles.error}>{formError?.fullname}</Text>
-        <TextInput
-          type="outlined"
-          style={styles.textInput}
-          label="Email"
-          name="email"
-          onChangeText={(text) =>
-            setCredentials({ ...credentials, email: text })
-          }
-        />
-        <Text component="h5" variant="caption" style={styles.error}>
-          {formError?.email}
-        </Text>
-        <TextInput
-          type="outlined"
-          style={styles.textInput}
-          label="Username"
-          name="username"
-          onChangeText={(text) =>
-            setCredentials({ ...credentials, username: text })
-          }
-        />
-        <Text component="h5" variant="caption" style={styles.error}>
-          {formError?.username}
-        </Text>
-        <TextInput
-          type="outlined"
-          style={styles.textInput}
-          name="password"
-          label="Password"
-          secureTextEntry={true}
-          onChangeText={(text) =>
-            setCredentials({ ...credentials, password: text })
-          }
-        />
-        <Text component="h5" variant="caption" style={styles.error}>
-          {formError?.password}
-        </Text>
-        <Button
-          mode="contained"
-          style={styles.submit}
-          color="blue"
-          onPress={onRegister}
-        >
-          Register
-        </Button>
+    <SafeArea>
+      <View style={styles.paper}>
+        <Avatar.Icon style={styles.avatar} size={24} icon="folder" />
+        <Text style={styles.header}>Register</Text>
+        <View style={styles.form}>
+          <TextInput
+            type="outlined"
+            style={styles.textInput}
+            label="Fullname"
+            name="fullname"
+            onChangeText={(text) =>
+              setCredentials({ ...credentials, fullname: text })
+            }
+          />
+          <Text style={styles.error}>{formError?.fullname}</Text>
+          <TextInput
+            type="outlined"
+            style={styles.textInput}
+            label="Email"
+            name="email"
+            onChangeText={(text) =>
+              setCredentials({ ...credentials, email: text })
+            }
+          />
+          <Text component="h5" variant="caption" style={styles.error}>
+            {formError?.email}
+          </Text>
+          <TextInput
+            type="outlined"
+            style={styles.textInput}
+            label="Username"
+            name="username"
+            onChangeText={(text) =>
+              setCredentials({ ...credentials, username: text })
+            }
+          />
+          <Text component="h5" variant="caption" style={styles.error}>
+            {formError?.username}
+          </Text>
+          <TextInput
+            type="outlined"
+            style={styles.textInput}
+            name="password"
+            label="Password"
+            secureTextEntry={true}
+            onChangeText={(text) =>
+              setCredentials({ ...credentials, password: text })
+            }
+          />
+          <Text component="h5" variant="caption" style={styles.error}>
+            {formError?.password}
+          </Text>
+          <Button
+            mode="contained"
+            style={styles.submit}
+            color="blue"
+            onPress={onRegister}
+          >
+            Register
+          </Button>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text>Login</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <Text>Login</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeArea>
   );
 }
 export default Register;
 
 const styles = StyleSheet.create({
   paper: {
-    marginTop: 20,
+    marginTop: 25,
     display: "flex",
     flexDirection: "column",
   },
@@ -222,6 +224,11 @@ const styles = StyleSheet.create({
   },
   textInput: {
     marginTop: 10,
+  },
+  others: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
   },
   submit: {
     margin: 20,

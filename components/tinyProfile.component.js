@@ -20,7 +20,7 @@ export default function TinyProfile({
             <Avatar.Image
               size={45}
               source={{
-                uri: user.image,
+                uri: user?.image,
               }}
             />
           ) : (

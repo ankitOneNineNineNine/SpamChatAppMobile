@@ -10,7 +10,7 @@ const UserInfo = ({ route, navigation }) => {
   const { user, isLoading } = userState;
 
   let friend =
-    user.friends.findIndex((friend) => friend._id === profileUser._id) > -1;
+  user?.friends.findIndex((friend) => friend._id === profileUser._id) > -1;
 
   return (
     <SafeArea>

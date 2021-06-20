@@ -78,7 +78,7 @@ function Chat({ navigation }) {
     if (images.length) {
       let formData = new FormData();
       formData.append("textMsg", textMsg);
-      formData.append("from", user._id);
+      formData.append("from", user?._id);
       if (currentMsging.fullname) {
         formData.append("toInd", currentMsging._id);
       } else {
@@ -114,7 +114,7 @@ function Chat({ navigation }) {
           };
       let msg = {
         ...receiver,
-        from: user._id,
+        from: user?._id,
         text: textMsg,
       };
       socket.emit("msgS", msg);
@@ -135,7 +135,7 @@ function Chat({ navigation }) {
           if (msg.toInd) {
             if (
               msg.toInd._id === currentMsging._id ||
-              (msg.from._id === currentMsging._id && msg.toInd._id === user._id)
+              (msg.from._id === currentMsging._id && msg.toInd._id === user?._id)
             ) {
               return true;
             }
@@ -215,7 +215,7 @@ function Chat({ navigation }) {
         renderItem={({ item, i }) => (
           <MessageComponent
             msg={item}
-            myID={user._id}
+            myID={user?._id}
             key={item._id}
             details={true}
           />

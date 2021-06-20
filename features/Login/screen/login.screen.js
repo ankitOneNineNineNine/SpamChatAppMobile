@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useState } from "react";
 import {
   View,
@@ -11,12 +11,12 @@ import { Avatar, TextInput, Button } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../../common/actions";
 import { getToken } from "../../../common/getSetToken";
+import { SocketContext } from "../../../infrastructure/context/socket.context";
 
 function Login({ navigation }) {
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
-  const { user, isLoading } = userState;
- 
+  const { user, isLoading, error } = userState;
   const [credentials, setCredentials] = useState({});
 
   const onLogin = async (e) => {
@@ -27,12 +27,13 @@ function Login({ navigation }) {
   useEffect(() => {
     // getToken().then((token) => {
     //   console.log(token);
-    if (user && Object.keys(user).length) {
+    if (user && Object.keys(user).length && !error) {
       navigation.navigate("Home");
     }
+
     // });
   }, [user]);
-  if (isLoading) {
+  if (isLoading && !error) {
     return (
       <ActivityIndicator
         style={{ marginTop: 30 }}
