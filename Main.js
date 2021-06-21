@@ -63,20 +63,20 @@ export default function Main() {
       let h = await getToken();
       setHash(h);
     })();
-  }, []);
+  }, [user]);
+
   useEffect(() => {
     seenMessage();
-  }, [currentMsging?._id]);
+  }, [currentMsging]);
 
   useEffect(() => {
     seenMessage();
   }, [messages]);
-
   useEffect(() => {
     if (hash && (!user || !Object.keys(user).length)) {
       dispatch(setUser({ token: hash }));
     }
-    if (hash) {
+    if (hash && !socket) {
       let s = io.connect(BEURL, {
         auth: {
           token: hash,

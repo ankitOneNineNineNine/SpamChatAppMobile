@@ -25,6 +25,7 @@ export const setUser = (credentials) => {
       const hash = await setToken(token);
       dispatch({ type: SET_USER_SUCCESS, payload: user });
     } catch (error) {
+ 
       dispatch({ type: SET_USER_FAILURE, payload: error });
       displayError(`${error.response.data.message}`);
     }

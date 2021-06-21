@@ -100,8 +100,8 @@ export const AppNavigator = ({ navigation }) => {
           inactiveTintColor: "gray",
         }}
       >
-        <Tab.Screen name="Friends" component={FriendsNavigator} />
         <Tab.Screen name="Messages" component={MessagesNavigator} />
+        <Tab.Screen name="Friends" component={FriendsNavigator} />
         <Tab.Screen name="Notifications" component={Notifications} />
         <Tab.Screen name="Profile">
           {(props) => <Profile {...props} logout={logout} />}

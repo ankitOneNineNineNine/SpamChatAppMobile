@@ -21,6 +21,7 @@ function Login({ navigation }) {
 
   const onLogin = async (e) => {
     e.preventDefault();
+    
     dispatch(setUser(credentials));
   };
 

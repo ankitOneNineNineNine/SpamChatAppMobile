@@ -97,7 +97,7 @@ function Chat({ navigation }) {
       });
       POST("/messages/", formData, true, "multipart/form-data")
         .then((data) => {
-          console.log("here", data);
+          
           socket.emit("imgMsg", data);
         })
         .catch((err) => {
