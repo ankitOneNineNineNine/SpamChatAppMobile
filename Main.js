@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { Provider, useDispatch, useSelector } from "react-redux";
@@ -13,6 +13,7 @@ import { MsgContextProvider } from "./infrastructure/context/message.context";
 import Navigation from "./infrastructure/navigation";
 import { GET, PUT } from "./adapters/http.adapter";
 import { getToken } from "./common/getSetToken";
+import * as Notifications from "expo-notifications";
 import {
   getCurrentMsging,
   setCurrentMsging,
@@ -20,13 +21,17 @@ import {
 import { ActivityIndicator } from "react-native-paper";
 import * as io from "socket.io-client";
 import { BEURL } from "./config";
+import {
+  registerForPushNotificationsAsync,
+  sendPushNotification,
+} from "./common/notifications";
+import Constants from "expo-constants";
 const logger = createLogger();
 const rootReducer = combineReducers({
   user: setUser,
   people: searchPeople,
   currentMsging: setCurrentMessaging,
 });
-
 const store = createStore(rootReducer, applyMiddleware(logger, thunk));
 
 export default function Main() {
@@ -39,11 +44,40 @@ export default function Main() {
   const [hash, setHash] = useState(null);
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const [msgRing, setMsgRing] = useState(null);
+
+  const [notToken, setNotToken] = useState("");
+  const [not, setNot] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
   // useEffect(() => {
   //   let ring = new Audio(process.env.PUBLIC_URL + "/newMsg.mp3");
   //   setMsgRing(ring);
   // }, []);
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then((token) => {
+        setNotToken(token);
+        notificationListener.current =
+          Notifications.addNotificationReceivedListener((notification) => {
+            setNot(notification);
+          });
 
+        responseListener.current =
+          Notifications.addNotificationResponseReceivedListener((response) => {
+            console.log(response);
+          });
+
+        return () => {
+          Notifications.removeNotificationSubscription(
+            notificationListener.current
+          );
+          Notifications.removeNotificationSubscription(
+            responseListener.current
+          );
+        };
+      })
+      .catch(console.log);
+  }, []);
   const seenMessage = () => {
     let msg = messages;
 
@@ -77,6 +111,7 @@ export default function Main() {
       dispatch(setUser({ token: hash }));
     }
     if (hash && !socket) {
+  
       let s = io.connect(BEURL, {
         auth: {
           token: hash,
@@ -87,6 +122,7 @@ export default function Main() {
     }
   }, [hash]);
 
+  console.log(socket?.id)
   useEffect(() => {
     if (hash) {
       GET("/messages", true).then((m) => {
@@ -100,6 +136,7 @@ export default function Main() {
 
   useEffect(() => {
     if (socket) {
+
       if (hash) {
         socket.on("status", function (chUser) {
           dispatch(setUser({ token: hash }));
@@ -108,10 +145,9 @@ export default function Main() {
       socket.on("msgR", function (msg) {
         if (messages.findIndex((ms) => ms._id !== msg._id) < 0) {
           if (msg.from._id !== user?._id) {
-            // msgRing
-            //   .play()
-            //   .then((_) => {})
-            //   .catch((_) => {});
+            (async function () {
+              await sendPushNotification(expoPushToken, msg);
+            })();
           }
           setMessages((state) => [...state, msg]);
         }

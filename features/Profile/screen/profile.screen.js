@@ -30,10 +30,10 @@ const Profile = ({ logout }) => {
   const { socket } = useContext(SocketContext);
   const dispatch = useDispatch();
   useEffect(() => {
-    setCredentials({ ...credentials, fullname: user.fullname });
+    setCredentials({ ...credentials, fullname: user?.fullname });
   }, [user]);
   useEffect(() => {
-    setCredentials({ ...credentials, fullname: user.fullname });
+    setCredentials({ ...credentials, fullname: user?.fullname });
   }, [edit]);
   useEffect(() => {
     validate();
@@ -71,7 +71,7 @@ const Profile = ({ logout }) => {
         setEdit(false);
         let hash = await getToken();
         dispatch(setUser({ token: hash }));
-        setCredentials({ fullname: user.fullname });
+        setCredentials({ fullname: user?.fullname });
       } catch (e) {
         console.log(e);
         displayError(e?.response?.data?.message);

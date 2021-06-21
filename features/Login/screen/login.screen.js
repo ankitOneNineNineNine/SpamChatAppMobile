@@ -21,7 +21,7 @@ function Login({ navigation }) {
 
   const onLogin = async (e) => {
     e.preventDefault();
-    
+
     dispatch(setUser(credentials));
   };
 
@@ -46,7 +46,7 @@ function Login({ navigation }) {
   }
   return (
     <View style={styles.paper}>
-      <Avatar.Icon style={styles.avatar} size={24} icon="folder" />
+      <Avatar.Icon style={styles.avatar} size={24} icon="lock" />
       <Text style={styles.header}>Login</Text>
       <View style={styles.form}>
         <TextInput

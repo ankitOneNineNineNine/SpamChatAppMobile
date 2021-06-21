@@ -132,7 +132,7 @@ function Register({ navigation }) {
   return (
     <SafeArea>
       <View style={styles.paper}>
-        <Avatar.Icon style={styles.avatar} size={24} icon="folder" />
+        <Avatar.Icon style={styles.avatar} size={24} icon="key" />
         <Text style={styles.header}>Register</Text>
         <View style={styles.form}>
           <TextInput

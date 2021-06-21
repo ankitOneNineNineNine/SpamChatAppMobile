@@ -14,7 +14,7 @@ import { SocketContext } from "../infrastructure/context/socket.context";
 import { useSelector } from "react-redux";
 import { NotifContext } from "../infrastructure/context/notification.context";
 import * as ImagePicker from "expo-image-picker";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity,Keyboard } from "react-native";
 export default function ProfileCard({
   user,
   edit = false,
@@ -88,7 +88,7 @@ export default function ProfileCard({
         }
       />
       <Card.Cover
-        style={{ height: "40%" }}
+        style={{ height: "35%" }}
         source={{
           uri: edit
             ? credentials.image
