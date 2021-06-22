@@ -94,20 +94,6 @@ export default function Main() {
       let done = await PUT(`/messages/${ms._id}`, { seen: true }, true);
     });
   };
-  useEffect(() => {
-    (async function () {
-      let h = await getToken();
-      setHash(h);
-
-      let s = io.connect(BEURL, {
-        auth: {
-          token: h,
-        },
-      });
-      s.emit("user", hash);
-      setSocket(s);
-    })();
-  }, [user]);
 
   useEffect(() => {
     seenMessage();
@@ -128,6 +114,18 @@ export default function Main() {
   }, [hash]);
 
   useEffect(() => {
+     getToken().then((h) => {
+      setHash(h);
+
+      let s = io.connect(BEURL, {
+        auth: {
+          token: h,
+        },
+      });
+      s.emit("user", hash);
+      setSocket(s);
+    });
+
     if (hash) {
       GET("/messages", true).then((m) => {
         setMessages([...m]);
@@ -140,11 +138,7 @@ export default function Main() {
 
   useEffect(() => {
     if (socket) {
-      if (hash) {
-        socket.on("status", function (chUser) {
-          dispatch(setUser({ token: hash }));
-        });
-      }
+    
       socket.on("msgR", function (msg) {
         if (messages.findIndex((ms) => ms._id === msg._id) < 0) {
           if (msg.from._id !== user?._id) {
@@ -183,14 +177,6 @@ export default function Main() {
           setNotifs([...n]);
         });
       });
-    } else if (hash) {
-      let s = io.connect(BEURL, {
-        auth: {
-          token: hash,
-        },
-      });
-      s.emit("user", hash);
-      setSocket(s);
     }
   }, [socket]);
 
