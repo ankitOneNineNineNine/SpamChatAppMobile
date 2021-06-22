@@ -25,7 +25,7 @@ export default function Notifications({ navigation }) {
       });
 
       let ntfs = notifications.filter((n) => n.from !== from);
-      setNotifications(ntfs);
+      setNotifications([...ntfs]);
     }
   };
   const rejectFr = (from, id) => {
@@ -37,7 +37,7 @@ export default function Notifications({ navigation }) {
         id,
       });
       let ntfs = notifications.filter((n) => n.from !== from);
-      setNotifications(ntfs);
+      setNotifications([...ntfs]);
     }
   };
 

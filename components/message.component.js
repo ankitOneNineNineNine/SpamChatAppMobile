@@ -1,15 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { Avatar, List } from "react-native-paper";
 import moment from "moment";
 export default function MessageComponent({ msg, myID, details = false }) {
+
   return (
-    <View style={msg.from._id === myID ? styles.mine : styles.other}>
+    <View
+      style={
+        details
+          ? msg.from._id === myID
+            ? styles.mine
+            : styles.other
+          : styles.other
+      }
+    >
       <List.Item
-        title={`${msg.from.fullname} ${moment(msg.createdAt).format(
-          "MMMM Do YYYY, h:mm:ss a"
-        )}`}
-        description={msg.text}
+        title={`${
+          details
+            ?msg.from.fullname 
+            :msg.from._id === myID
+              ? msg.toInd.fullname
+              : msg.from.fullname
+            
+        } ${moment(msg.createdAt).format("MMMM Do YYYY, h:mm:ss a")}`}
+        description={details ? msg.text : `${msg.from.fullname}: ${msg.text}`}
         left={(props) =>
           msg.from.image ? (
             <Avatar.Image

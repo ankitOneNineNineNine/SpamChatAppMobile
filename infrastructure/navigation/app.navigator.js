@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { FriendsNavigator } from "./friends.navigator.";
 import { Badge, Icon, withBadge } from "react-native-elements";
-import { removeToken } from "../../common/getSetToken";
+import { getToken, removeToken } from "../../common/getSetToken";
 import Friends from "../../features/Friends/screen/friends.screen";
 import Profile from "../../features/Profile/screen/profile.screen";
 import Chat from "../../features/Chat/screen/chat.screen";
@@ -65,8 +65,9 @@ export const AppNavigator = ({ navigation }) => {
       socket.emit("logout", "logout");
       setSocket(null);
     }
-    removeToken();
-    dispatch(setUser("logout"));
+    let a = await removeToken();
+ 
+    await dispatch(setUser("logout"));
     navigation && navigation.navigate("Login");
   };
   return (

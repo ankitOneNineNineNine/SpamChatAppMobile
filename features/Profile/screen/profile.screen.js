@@ -8,7 +8,13 @@ import {
   Divider,
   ActivityIndicator,
 } from "react-native-paper";
-import { StyleSheet, Text } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  KeyboardAvoidingView,
+  ScrollView,
+  View
+} from "react-native";
 import { Ionicons } from "react-native-vector-icons";
 import { getToken, removeToken } from "../../../common/getSetToken";
 import SafeArea from "../../../components/safeArea.component";
@@ -93,24 +99,33 @@ const Profile = ({ logout }) => {
   }
   return (
     <SafeArea>
-      <ProfileCard
-        user={user}
-        me={true}
-        edit={edit}
-        setEdit={setEdit}
-        credentials={credentials}
-        onEdit={onEdit}
-        editCredentialsChange={editCredentialsChange}
-      />
-
-      <Button
-        style={styles.logoutBtn}
-        icon="logout"
-        mode="contained"
-        onPress={() => logout()}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : 'height'}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+        enabled={true}
       >
-        Logout
-      </Button>
+        <ScrollView>
+          <ProfileCard
+            user={user}
+            me={true}
+            edit={edit}
+            setEdit={setEdit}
+            credentials={credentials}
+            onEdit={onEdit}
+            editCredentialsChange={editCredentialsChange}
+          />
+
+          <Button
+            style={styles.logoutBtn}
+            icon="logout"
+            mode="contained"
+            onPress={() => logout()}
+          >
+            Logout
+          </Button>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeArea>
   );
 };

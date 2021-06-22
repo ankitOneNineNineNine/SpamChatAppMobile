@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+} from "react-native";
 import { Avatar, TextInput, Button } from "react-native-paper";
 import { GET, POST } from "../../../adapters/http.adapter";
 import { displayError, displaySuccess } from "../../../common/toaster";
@@ -123,7 +131,7 @@ function Register({ navigation }) {
       try {
         let response = await POST("/auth/register", credentials);
         navigation.navigate("Login");
-        displaySuccess("Successfully Created");
+        displaySuccess("Successfully Registered");
       } catch (err) {
         console.log(err);
       }
@@ -131,71 +139,78 @@ function Register({ navigation }) {
   };
   return (
     <SafeArea>
-      <View style={styles.paper}>
-        <Avatar.Icon style={styles.avatar} size={24} icon="key" />
-        <Text style={styles.header}>Register</Text>
-        <View style={styles.form}>
-          <TextInput
-            type="outlined"
-            style={styles.textInput}
-            label="Fullname"
-            name="fullname"
-            onChangeText={(text) =>
-              setCredentials({ ...credentials, fullname: text })
-            }
-          />
-          <Text style={styles.error}>{formError?.fullname}</Text>
-          <TextInput
-            type="outlined"
-            style={styles.textInput}
-            label="Email"
-            name="email"
-            onChangeText={(text) =>
-              setCredentials({ ...credentials, email: text })
-            }
-          />
-          <Text component="h5" variant="caption" style={styles.error}>
-            {formError?.email}
-          </Text>
-          <TextInput
-            type="outlined"
-            style={styles.textInput}
-            label="Username"
-            name="username"
-            onChangeText={(text) =>
-              setCredentials({ ...credentials, username: text })
-            }
-          />
-          <Text component="h5" variant="caption" style={styles.error}>
-            {formError?.username}
-          </Text>
-          <TextInput
-            type="outlined"
-            style={styles.textInput}
-            name="password"
-            label="Password"
-            secureTextEntry={true}
-            onChangeText={(text) =>
-              setCredentials({ ...credentials, password: text })
-            }
-          />
-          <Text component="h5" variant="caption" style={styles.error}>
-            {formError?.password}
-          </Text>
-          <Button
-            mode="contained"
-            style={styles.submit}
-            color="blue"
-            onPress={onRegister}
-          >
-            Register
-          </Button>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : null}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+        enabled={true}
+      >
+        <ScrollView style={styles.paper}>
+          <Avatar.Icon style={styles.avatar} size={24} icon="key" />
+          <Text style={styles.header}>Register</Text>
+          <View style={styles.form}>
+            <TextInput
+              type="outlined"
+              style={styles.textInput}
+              label="Fullname"
+              name="fullname"
+              onChangeText={(text) =>
+                setCredentials({ ...credentials, fullname: text })
+              }
+            />
+            <Text style={styles.error}>{formError?.fullname}</Text>
+            <TextInput
+              type="outlined"
+              style={styles.textInput}
+              label="Email"
+              name="email"
+              onChangeText={(text) =>
+                setCredentials({ ...credentials, email: text })
+              }
+            />
+            <Text component="h5" variant="caption" style={styles.error}>
+              {formError?.email}
+            </Text>
+            <TextInput
+              type="outlined"
+              style={styles.textInput}
+              label="Username"
+              name="username"
+              onChangeText={(text) =>
+                setCredentials({ ...credentials, username: text })
+              }
+            />
+            <Text component="h5" variant="caption" style={styles.error}>
+              {formError?.username}
+            </Text>
+            <TextInput
+              type="outlined"
+              style={styles.textInput}
+              name="password"
+              label="Password"
+              secureTextEntry={true}
+              onChangeText={(text) =>
+                setCredentials({ ...credentials, password: text })
+              }
+            />
+            <Text component="h5" variant="caption" style={styles.error}>
+              {formError?.password}
+            </Text>
+            <Button
+              mode="contained"
+              style={styles.submit}
+              color="blue"
+              onPress={onRegister}
+            >
+              Register
+            </Button>
 
-          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-            <Text>Login</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text>Login</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeArea>
   );
 }

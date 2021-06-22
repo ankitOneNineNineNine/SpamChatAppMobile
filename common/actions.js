@@ -13,7 +13,7 @@ import {
 } from "./types";
 
 export const setUser = (credentials) => {
-  if (credentials === "logout") {
+  if (!credentials || credentials === "logout") {
     return (dispatch) => {
       dispatch({ type: USER_LOGOUT });
     };
@@ -22,10 +22,9 @@ export const setUser = (credentials) => {
     dispatch({ type: SET_USER_PENDING });
     try {
       const { user, token } = await POST("/auth/login", credentials);
-      const hash = await setToken(token);
+      await setToken(token);
       dispatch({ type: SET_USER_SUCCESS, payload: user });
     } catch (error) {
- 
       dispatch({ type: SET_USER_FAILURE, payload: error });
       displayError(`${error.response.data.message}`);
     }
