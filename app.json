@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "BoomChat.apk"
+      "package": "com.SDCA.BoomChat"
     },
     "web": {
       "favicon": "./assets/favicon.png"

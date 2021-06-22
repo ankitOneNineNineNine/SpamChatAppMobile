@@ -54,6 +54,15 @@ export default function Main() {
   //   setMsgRing(ring);
   // }, []);
   useEffect(() => {
+    if (hash && !socket) {
+      let s = io.connect(BEURL, {
+        auth: {
+          token: hash,
+        },
+      });
+      s.emit("user", hash);
+      setSocket(s);
+    }
     registerForPushNotificationsAsync()
       .then((token) => {
         setNotToken(token);
@@ -116,7 +125,17 @@ export default function Main() {
       setSocket(s);
     }
   }, [hash]);
-  
+  if (hash && !socket) {
+    return (
+      <ActivityIndicator
+        style={{ marginTop: 40 }}
+        size="large"
+        animating={true}
+        color="blue"
+      />
+    );
+  }
+
   useEffect(() => {
     if (hash) {
       GET("/messages", true).then((m) => {
@@ -136,7 +155,6 @@ export default function Main() {
         });
       }
       socket.on("msgR", function (msg) {
-   
         if (messages.findIndex((ms) => ms._id === msg._id) < 0) {
           if (msg.from._id !== user?._id) {
             (async function () {
