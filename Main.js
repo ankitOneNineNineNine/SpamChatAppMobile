@@ -26,13 +26,6 @@ import {
   sendPushNotification,
 } from "./common/notifications";
 import Constants from "expo-constants";
-const logger = createLogger();
-const rootReducer = combineReducers({
-  user: setUser,
-  people: searchPeople,
-  currentMsging: setCurrentMessaging,
-});
-const store = createStore(rootReducer, applyMiddleware(logger, thunk));
 
 export default function Main() {
   const dispatch = useDispatch();
@@ -54,7 +47,7 @@ export default function Main() {
   //   setMsgRing(ring);
   // }, []);
   useEffect(() => {
-    if (hash && !socket) {
+    if (hash) {
       let s = io.connect(BEURL, {
         auth: {
           token: hash,
@@ -105,6 +98,14 @@ export default function Main() {
     (async function () {
       let h = await getToken();
       setHash(h);
+
+      let s = io.connect(BEURL, {
+        auth: {
+          token: h,
+        },
+      });
+      s.emit("user", hash);
+      setSocket(s);
     })();
   }, [user]);
 
@@ -115,7 +116,7 @@ export default function Main() {
   useEffect(() => {
     if (hash && (!user || !Object.keys(user).length)) {
       dispatch(setUser({ token: hash }));
-    } else if (hash && !socket) {
+    } else if (hash) {
       let s = io.connect(BEURL, {
         auth: {
           token: hash,
@@ -125,16 +126,6 @@ export default function Main() {
       setSocket(s);
     }
   }, [hash]);
-  if (hash && !socket) {
-    return (
-      <ActivityIndicator
-        style={{ marginTop: 40 }}
-        size="large"
-        animating={true}
-        color="blue"
-      />
-    );
-  }
 
   useEffect(() => {
     if (hash) {
@@ -170,11 +161,11 @@ export default function Main() {
         }
       });
       socket.on("newGroupCreated", async function (msg) {
-        dispatch(setUser({ token: await getToken() }));
+        dispatch(setUser({ token: hash }));
       });
       socket.on("doneFr", async (msg) => {
         displaySuccess(msg.msg);
-        dispatch(setUser({ token: await getToken() }));
+        dispatch(setUser({ token: hash }));
         let newNotifs = await PUT(
           `/notifs/${msg.id}`,
           { accepted: true },
@@ -182,7 +173,7 @@ export default function Main() {
         );
         let ntfs = notifs;
         let i = ntfs.findIndex((n) => n._id === msg._id);
-        ntfs[i] = newNotifs.accepted;
+        ntfs[i] = true;
         setNotifs(ntfs);
       });
       socket.on("newFriend", async (msg) => {
@@ -192,8 +183,17 @@ export default function Main() {
           setNotifs([...n]);
         });
       });
+    } else if (hash) {
+      let s = io.connect(BEURL, {
+        auth: {
+          token: hash,
+        },
+      });
+      s.emit("user", hash);
+      setSocket(s);
     }
   }, [socket]);
+
   return (
     <>
       <MsgContextProvider messages={{ messages, setMsg: setMessages }}>
