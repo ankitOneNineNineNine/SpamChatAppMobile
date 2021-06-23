@@ -66,10 +66,25 @@ export const AppNavigator = ({ navigation }) => {
       setSocket(null);
     }
     let a = await removeToken();
- 
+
     await dispatch(setUser("logout"));
     navigation && navigation.navigate("Login");
   };
+
+  let msgs = {};
+  user?.friends.map((friend) => {
+    let thisUserMsg = messages.filter(
+      (m) => m?.from?._id === friend._id || m?.toInd?._id === friend._id
+    );
+    msgs[friend._id] = thisUserMsg[thisUserMsg.length - 1];
+  });
+  let keys = Object.keys(msgs);
+
+  let unseen = keys.reduce((acc, key) => {
+    let r = a[key].seen ? 0 : 1;
+    return acc + r;
+  }, 0);
+
   return (
     <>
       <Tab.Navigator
@@ -77,10 +92,7 @@ export const AppNavigator = ({ navigation }) => {
           tabBarIcon: ({ color, size }) => {
             return (
               <ScreenOptions
-                msgLength={
-                  messages.filter((m) => !m.seen && m?.from?._id !== user?._id)
-                    .length
-                }
+                msgLength={unseen}
                 notifLength={
                   notifications.filter((n) => {
                     return (

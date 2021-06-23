@@ -97,7 +97,7 @@ export default function Main() {
 
   useEffect(() => {
     seenMessage();
-  }, [currentMsging]);
+  }, [currentMsging?._id]);
 
   useEffect(() => {
     if (hash && (!user || !Object.keys(user).length)) {
@@ -114,7 +114,7 @@ export default function Main() {
   }, [hash]);
 
   useEffect(() => {
-     getToken().then((h) => {
+    getToken().then((h) => {
       setHash(h);
 
       let s = io.connect(BEURL, {
@@ -122,10 +122,10 @@ export default function Main() {
           token: h,
         },
       });
-      s.emit("user", hash);
       setSocket(s);
     });
-
+  }, [user]);
+  useEffect(() => {
     if (hash) {
       GET("/messages", true).then((m) => {
         setMessages([...m]);
@@ -134,11 +134,25 @@ export default function Main() {
         setNotifs([...n]);
       });
     }
-  }, [user]);
+  }, [hash]);
 
   useEffect(() => {
     if (socket) {
-    
+      if (user) {
+        socket.emit("user", user);
+        socket.on("frStatus", ({ friend, status }) => {
+          if (user.friends.findIndex((fr) => fr._id === friend)) {
+            dispatch(
+              setUser({
+                me: user,
+                friend: friend,
+                status: status,
+              })
+            );
+          }
+        });
+      }
+
       socket.on("msgR", function (msg) {
         if (messages.findIndex((ms) => ms._id === msg._id) < 0) {
           if (msg.from._id !== user?._id) {

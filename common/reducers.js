@@ -7,6 +7,7 @@ import {
   SEARCH_PENDING,
   CURRENT_MSGING,
   USER_LOGOUT,
+  FRIEND_STATUS,
 } from "./types";
 
 const initialState = {
@@ -37,12 +38,32 @@ export const setUser = (state = initialState, action) => {
         user: null,
       };
     case SET_USER_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
+      };
+
+      break;
+    case FRIEND_STATUS:
+      let ind = action.payload.me.friends.findIndex(
+        (f) => f._id === action.payload.friend
+      );
+      if (ind >= 0) {
+        let user = action.payload.me;
+        user.friends[ind].status = status;
         return {
-            ...state,
-            isLoading: false,
-            error: action.payload
-        }
-    break;
+          ...state,
+          user: user,
+          isLoading: false,
+        };
+      } else {
+        return {
+          ...state,
+          user: action.payload.me,
+          isLoading: false,
+        };
+      }
     default:
       return state;
   }

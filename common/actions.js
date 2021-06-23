@@ -10,12 +10,25 @@ import {
   SEARCH_SUCCESS,
   CURRENT_MSGING,
   USER_LOGOUT,
+  FRIEND_STATUS
 } from "./types";
+
 
 export const setUser = (credentials) => {
   if (!credentials || credentials === "logout") {
     return (dispatch) => {
       dispatch({ type: USER_LOGOUT });
+    };
+  } else if (credentials.friend) {
+    return (dispatch) => {
+      dispatch({
+        type: FRIEND_STATUS,
+        payload: {
+          me: credentials.me,
+          friend: credentials.friend,
+          status: credentials.status,
+        },
+      });
     };
   }
   return async (dispatch) => {
@@ -30,7 +43,6 @@ export const setUser = (credentials) => {
     }
   };
 };
-
 export const searchPeople = (text) => {
   return async (dispatch) => {
     dispatch({ type: SEARCH_PENDING });
@@ -42,6 +54,8 @@ export const searchPeople = (text) => {
     }
   };
 };
+
+
 
 export const setCurrentMessaging = (info) => {
   return {
