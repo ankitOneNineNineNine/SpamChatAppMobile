@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Ionicons } from "react-native-vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -59,6 +59,17 @@ export const AppNavigator = ({ navigation }) => {
   const { notifications } = useContext(NotifContext);
   const user = useSelector((state) => state.user.user);
   const { socket, setSocket } = useContext(SocketContext);
+  const [msgs, setMsg] = useState({});
+  useEffect(() => {
+    let msgs = {};
+    user?.friends.map((friend) => {
+      let thisUserMsg = messages.filter(
+        (m) => m?.from?._id === friend._id || m?.toInd?._id === friend._id
+      );
+      msgs[friend._id] = thisUserMsg[thisUserMsg.length - 1];
+    });
+    setMsg(msgs);
+  }, []);
 
   const logout = async () => {
     if (socket) {
@@ -71,19 +82,14 @@ export const AppNavigator = ({ navigation }) => {
     navigation && navigation.navigate("Login");
   };
 
-  let msgs = {};
-  user?.friends.map((friend) => {
-    let thisUserMsg = messages.filter(
-      (m) => m?.from?._id === friend._id || m?.toInd?._id === friend._id
-    );
-    msgs[friend._id] = thisUserMsg[thisUserMsg.length - 1];
-  });
   let keys = Object.keys(msgs);
-
-  let unseen = keys.reduce((acc, key) => {
-    let r = a[key].seen ? 0 : 1;
-    return acc + r;
-  }, 0);
+  let unseen = 0;
+  if (keys.length) {
+    unseen = keys.reduce((acc, key) => {
+      let r = msgs[key]?.seen ? 0 : 1;
+      return acc + r;
+    }, 0);
+  }
 
   return (
     <>
