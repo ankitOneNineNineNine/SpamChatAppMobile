@@ -61,7 +61,7 @@ export default function Messages({ navigation }) {
                   }
                 >
                   {!dispMsgs[item].seen &&
-                  dispMsgs[item].from._id !== user._id ? (
+                  dispMsgs[item].from._id !== user?._id ? (
                     <Button
                       mode="contained"
                       compact

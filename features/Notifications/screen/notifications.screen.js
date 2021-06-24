@@ -1,6 +1,13 @@
 import React, { useContext } from "react";
 import { Text, FlatList } from "react-native";
-import { Avatar, List, Title } from "react-native-paper";
+import {
+  Avatar,
+  List,
+  Title,
+  IconButton,
+  Colors,
+  Button,
+} from "react-native-paper";
 import SafeArea from "../../../components/safeArea.component";
 import { Ionicons } from "react-native-vector-icons";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -24,8 +31,8 @@ export default function Notifications({ navigation }) {
         id,
       });
 
-      let ntfs = notifications.filter((n) => n.from !== from);
-      setNotifications([...ntfs]);
+      let ntfs = notifications.filter((n) => n._id !== id);
+      setNotifications(ntfs);
     }
   };
   const rejectFr = (from, id) => {
@@ -36,8 +43,8 @@ export default function Notifications({ navigation }) {
         to: me._id,
         id,
       });
-      let ntfs = notifications.filter((n) => n.from !== from);
-      setNotifications([...ntfs]);
+      let ntfs = notifications.filter((n) => n._id !== id);
+      setNotifications(ntfs);
     }
   };
 
@@ -96,18 +103,24 @@ export default function Notifications({ navigation }) {
                 right={(props) =>
                   item.to._id === me?._id ? (
                     <>
-                      <Ionicons
+                      <Button
+                        mode="contained"
                         size={30}
-                        style={{ marginTop: 10, color: "green" }}
-                        name="checkmark-circle"
+                        style={{ margin: 10 }}
+                        color="green"
                         onPress={() => acceptFr(item.from._id, item._id)}
-                      />
-                      <Icon
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        mode="contained"
+                        color="red"
                         size={30}
-                        style={{ marginTop: 10, color: "red" }}
-                        name="cancel"
+                        style={{ margin: 10 }}
                         onPress={() => rejectFr(item.from._id, item._id)}
-                      />
+                      >
+                        Reject
+                      </Button>
                     </>
                   ) : null
                 }

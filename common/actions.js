@@ -10,16 +10,16 @@ import {
   SEARCH_SUCCESS,
   CURRENT_MSGING,
   USER_LOGOUT,
-  FRIEND_STATUS
+  FRIEND_STATUS,
 } from "./types";
-
 
 export const setUser = (credentials) => {
   if (!credentials || credentials === "logout") {
     return (dispatch) => {
       dispatch({ type: USER_LOGOUT });
     };
-  } else if (credentials.friend) {
+  } else if (credentials.status) {
+    
     return (dispatch) => {
       dispatch({
         type: FRIEND_STATUS,
@@ -54,8 +54,6 @@ export const searchPeople = (text) => {
     }
   };
 };
-
-
 
 export const setCurrentMessaging = (info) => {
   return {

@@ -51,7 +51,7 @@ export const setUser = (state = initialState, action) => {
       );
       if (ind >= 0) {
         let user = action.payload.me;
-        user.friends[ind].status = status;
+        user.friends[ind].status = action.payload.status;
         return {
           ...state,
           user: user,

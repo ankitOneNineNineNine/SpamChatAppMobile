@@ -26,6 +26,7 @@ import {
   sendPushNotification,
 } from "./common/notifications";
 import Constants from "expo-constants";
+import { displaySuccess } from "./common/toaster";
 
 export default function Main() {
   const dispatch = useDispatch();
@@ -141,7 +142,7 @@ export default function Main() {
       if (user) {
         socket.emit("user", user);
         socket.on("frStatus", ({ friend, status }) => {
-          if (user.friends.findIndex((fr) => fr._id === friend)) {
+          if (user.friends.findIndex((fr) => fr._id === friend) > -1) {
             dispatch(
               setUser({
                 me: user,
@@ -164,7 +165,7 @@ export default function Main() {
         }
       });
       socket.on("friendReqReceived", function (notification) {
-        if (notifs.findIndex((ms) => ms._id !== notification._id)) {
+        if (notifs.findIndex((ms) => ms._id === notification._id) < 0) {
           setNotifs((state) => [...state, notification]);
         }
       });
