@@ -47,6 +47,7 @@ export default function Main() {
   //   let ring = new Audio(process.env.PUBLIC_URL + "/newMsg.mp3");
   //   setMsgRing(ring);
   // }, []);
+
   useEffect(() => {
     if (hash) {
       let s = io.connect(BEURL, {
@@ -60,6 +61,7 @@ export default function Main() {
     registerForPushNotificationsAsync()
       .then((token) => {
         setNotToken(token);
+        socket && socket.emit("notToken", notToken);
         notificationListener.current =
           Notifications.addNotificationReceivedListener((notification) => {
             setNot(notification);
@@ -67,7 +69,7 @@ export default function Main() {
 
         responseListener.current =
           Notifications.addNotificationResponseReceivedListener((response) => {
-            console.log(response);
+           
           });
 
         return () => {
@@ -139,6 +141,7 @@ export default function Main() {
 
   useEffect(() => {
     if (socket) {
+      notToken && socket.emit("notToken", notToken);
       if (user) {
         socket.emit("user", user);
         socket.on("frStatus", ({ friend, status }) => {
@@ -157,9 +160,12 @@ export default function Main() {
       socket.on("msgR", function (msg) {
         if (messages.findIndex((ms) => ms._id === msg._id) < 0) {
           if (msg.from._id !== user?._id) {
-            (async function () {
-              await sendPushNotification(expoPushToken, msg);
-            })();
+            socket.emit("messageNot", {
+              id: msg._id,
+              token: notToken,
+              title: `Message from ${msg.from.fullname}`,
+              body: `${msg.text} ${msg?.images?.length ? "IMAGE" : ""}`,
+            });
           }
           setMessages((state) => [...state, msg]);
         }
@@ -182,7 +188,7 @@ export default function Main() {
         );
         let ntfs = notifs;
         let i = ntfs.findIndex((n) => n._id === msg._id);
-        ntfs[i] = true;
+        ntfs[i].accepted = true;
         setNotifs(ntfs);
       });
       socket.on("newFriend", async (msg) => {
