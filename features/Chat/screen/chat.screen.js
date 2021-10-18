@@ -6,6 +6,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import {
   Chip,
@@ -16,6 +17,7 @@ import {
   ActivityIndicator,
   Divider,
 } from "react-native-paper";
+import { Dimensions } from 'react-native';
 import Search from "../../../components/searchbar.component";
 import { Ionicons } from "react-native-vector-icons";
 import SafeArea from "../../../components/safeArea.component";
@@ -38,10 +40,12 @@ function Chat({ navigation }) {
   const [msgNav, setMsgNav] = useState("inbox");
   const userState = useSelector((state) => state.user);
   const { user, isLoading } = userState;
-
+  const [mdlImg, setMdlImg] = useState(null)
+  const [open, setOpen] = useState(false)
   const [textMsg, setTextMsg] = useState("");
   const [images, setImages] = useState([]);
   const { messages, setMsg } = useContext(MsgContext);
+
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const { socket, setSocket } = useContext(SocketContext);
   const dispatch = useDispatch();
@@ -63,6 +67,11 @@ function Chat({ navigation }) {
 
     setImages([...images, result]);
   };
+
+  const modelOpen = (image) => {
+    setMdlImg(image)
+    setOpen(true)
+  }
 
   const removeImage = (i) => {
     let imgs = [...images];
@@ -87,17 +96,17 @@ function Chat({ navigation }) {
       images.forEach((image) => {
         let localUri = image.uri;
         let filename = localUri.split('/').pop();
-      
+
         let match = /\.(\w+)$/.exec(filename);
         let type = match ? `image/${match[1]}` : `image`;
-      
+
         formData.append("images", {
-          uri: localUri, name: filename, type 
+          uri: localUri, name: filename, type
         });
       });
       POST("/messages/", formData, true, "multipart/form-data")
         .then((data) => {
-          
+
           socket.emit("imgMsg", data);
         })
         .catch((err) => {
@@ -107,11 +116,11 @@ function Chat({ navigation }) {
     } else {
       let receiver = currentMsging.fullname
         ? {
-            toInd: currentMsging._id,
-          }
+          toInd: currentMsging._id,
+        }
         : {
-            toGrp: currentMsging._id,
-          };
+          toGrp: currentMsging._id,
+        };
       let msg = {
         ...receiver,
         from: user?._id,
@@ -215,6 +224,7 @@ function Chat({ navigation }) {
         renderItem={({ item, i }) => (
           <MessageComponent
             msg={item}
+            modelOpen={modelOpen}
             myID={user?._id}
             key={item._id}
             details={true}
@@ -224,20 +234,21 @@ function Chat({ navigation }) {
       <View style={styles.selectedImage}>
         {images.length
           ? images.map((image, i) => (
-              <View>
-                <Image
-                  source={{ uri: image.uri }}
-                  style={{ width: 100, height: 100 }}
-                />
-                <TouchableOpacity
-                  style={styles.removeIcon}
-                  onPress={() => removeImage(i)}
-                >
-                  <Ionicons name="trash" size={25} color="red" />
-                </TouchableOpacity>
-              </View>
-            ))
+            <View>
+              <Image
+                source={{ uri: image.uri }}
+                style={{ width: 100, height: 100 }}
+              />
+              <TouchableOpacity
+                style={styles.removeIcon}
+                onPress={() => removeImage(i)}
+              >
+                <Ionicons name="trash" size={25} color="red" />
+              </TouchableOpacity>
+            </View>
+          ))
           : null}
+
       </View>
       <TextInput
         placeholder="Type your message"
@@ -247,6 +258,25 @@ function Chat({ navigation }) {
         right={<TextInput.Icon name="send" onPress={messageSend} />}
         onChangeText={(text) => setTextMsg(text)}
       />
+      {
+        open ?
+          <Pressable style={styles.modal}>
+            <Ionicons name="arrow-back" 
+             onPress={() => setOpen(false)}
+            style={{
+              position: 'absolute',
+              top: 40,
+              backgroundColor: 'black',
+              zIndex: 300,
+            }} size={50} color="white" />
+            <Image
+              source={{ uri: mdlImg }}
+              style={{width:Dimensions.get('window').width , height: Dimensions.get('window').height-160, resizeMode:'contain' }}
+            />
+          </Pressable>
+
+          : null
+      }
     </SafeArea>
   );
 }
@@ -257,7 +287,7 @@ const styles = StyleSheet.create({
   msgsNav: {
     position: "relative",
     top: 0,
-    zIndex: 5000,
+    zIndex: 100,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -276,4 +306,13 @@ const styles = StyleSheet.create({
 
     right: 0,
   },
+  modal: {
+    backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    position: 'absolute',
+    top: 80,
+    width: '100%',
+    height: '200%',
+    zIndex: 200
+
+  }
 });

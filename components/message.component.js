@@ -1,8 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
 import { Avatar, List } from "react-native-paper";
 import moment from "moment";
-export default function MessageComponent({ msg, myID, details = false }) {
+import { Ionicons } from "react-native-vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
+export default function MessageComponent({ msg, myID, modelOpen = () => { }, details = false }) {
 
   return (
     <View
@@ -15,14 +17,13 @@ export default function MessageComponent({ msg, myID, details = false }) {
       }
     >
       <List.Item
-        title={`${
-          details
-            ?msg.from.fullname 
-            :msg.from._id === myID
-              ? msg.toInd.fullname
-              : msg.from.fullname
-            
-        } ${moment(msg.createdAt).format("MMMM Do YYYY, h:mm:ss a")}`}
+        title={`${details
+          ? msg.from.fullname
+          : msg.from._id === myID
+            ? msg.toInd.fullname
+            : msg.from.fullname
+
+          } ${moment(msg.createdAt).format("MMMM Do YYYY, h:mm:ss a")}`}
         description={details ? msg.text : `${msg.from.fullname}: ${msg.text}`}
         left={(props) =>
           msg.from.image ? (
@@ -40,18 +41,24 @@ export default function MessageComponent({ msg, myID, details = false }) {
       {details ? (
         <View style={styles.msgImgContainer}>
           {msg.images?.map((image, i) => (
-            <Image
-              key={i}
-              source={{
-                uri: image,
-              }}
-              style={styles.msgImg}
-            />
+            <TouchableOpacity onPress={()=>modelOpen(image)}>
+
+              <Image
+                key={i}
+                source={{
+                  uri: image,
+                }}
+                style={styles.msgImg}
+              />
+            </TouchableOpacity>
           ))}
+
         </View>
       ) : msg.images?.length ? (
         <Text>FILE MESSAGE</Text>
       ) : null}
+
+
     </View>
   );
 }
@@ -84,4 +91,5 @@ const styles = StyleSheet.create({
     width: "95%",
     margin: 2,
   },
+
 });

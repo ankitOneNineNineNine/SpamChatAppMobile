@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { Ionicons } from 'react-native-vector-icons'
 import {
   List,
+  Chip,
   Avatar,
   Divider,
   Title,
@@ -53,6 +55,7 @@ export default function Friends({ navigation, ...rest }) {
         )}
       />
 
+
       <Divider />
       {user?.groups.length ? (
         <>
@@ -71,6 +74,13 @@ export default function Friends({ navigation, ...rest }) {
           />
         </>
       ) : null}
+      <Chip
+        type="outlined"
+        icon="plus-circle"
+        onPress={() => { }}
+      >
+        Create Group
+      </Chip>
     </SafeArea>
   );
 }
