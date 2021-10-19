@@ -4,7 +4,7 @@ import { Searchbar } from "react-native-paper";
 import { useDispatch } from "react-redux";
 import { searchPeople } from "../common/actions";
 
-function Search({ search }) {
+function Search({ search, friendsOnly = false }) {
   const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useDispatch();
   const onChangeSearch = (query) => setSearchQuery(query);
@@ -14,7 +14,7 @@ function Search({ search }) {
   };
   return (
     <Searchbar
-      placeholder={"Search People, Friends, Groups"}
+      placeholder={friendsOnly ? "Search Friends" : "Search People, Friends, Groups"}
       onChangeText={onChangeSearch}
       onSubmitEditing={srch}
       value={searchQuery}

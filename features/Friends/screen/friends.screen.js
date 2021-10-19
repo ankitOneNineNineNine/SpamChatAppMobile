@@ -77,7 +77,9 @@ export default function Friends({ navigation, ...rest }) {
       <Chip
         type="outlined"
         icon="plus-circle"
-        onPress={() => { }}
+        onPress={() => {
+          navigation.navigate("create");
+        }}
       >
         Create Group
       </Chip>

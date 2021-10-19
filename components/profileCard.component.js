@@ -7,6 +7,7 @@ import {
   Paragraph,
   Divider,
   TextInput,
+  Chip,
 } from "react-native-paper";
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "react-native-vector-icons";
@@ -23,10 +24,10 @@ import { Platform } from "react-native";
 export default function ProfileCard({
   user,
   edit = false,
-  setEdit = () => {},
+  setEdit = () => { },
   credentials = {},
-  onEdit = () => {},
-  editCredentialsChange = () => {},
+  onEdit = () => { },
+  editCredentialsChange = () => { },
 }) {
   const [sent, setSent] = useState(false);
   const { socket } = useContext(SocketContext);
@@ -74,13 +75,13 @@ export default function ProfileCard({
     }
   };
   return (
-    <View style = {{
+    <View style={{
       maxHeight: 550,
       // padding:500
     }}>
       <Card>
         <Card.Title
-          title={user?.fullname}
+          title={user && user.name ? user.name : user?.fullname}
           subtitle={user?.status}
           left={(props) =>
             user?.image ? (
@@ -91,7 +92,7 @@ export default function ProfileCard({
                 }}
               />
             ) : (
-              <Avatar.Text size={45} label={user?.fullname.charAt(0)} />
+              <Avatar.Text size={45} label={user && user.name ? user.name.charAt(0) : user.fullname.charAt(0)} />
             )
           }
         />
@@ -102,36 +103,48 @@ export default function ProfileCard({
               ? credentials.image
                 ? credentials.image.uri
                 : user.image
-                ? user.image
-                : "https://picsum.photos/700"
+                  ? user.image
+                  : "https://picsum.photos/700"
               : user?.image
-              ? user?.image
-              : "https://picsum.photos/700",
+                ? user?.image
+                : "https://picsum.photos/700",
           }}
         />
-        <Card.Actions mode="elevated">
-          {user?._id === me?._id ? (
-            edit ? (
-              <Button onPress={() => setEdit(false)}>Go Back</Button>
-            ) : (
-              <Button onPress={() => setEdit(true)}>Edit</Button>
+        {
+          user.name ?
+            user?.admins.indexOf(me?._id) >= 0 && (
+              edit ? (
+                <Button onPress={() => setEdit(false)}>Go Back</Button>
+              ) : (
+                <Button onPress={() => setEdit(true)}>Edit</Button>
+              )
             )
-          ) : me?.friends?.findIndex((friend) => friend._id === user._id) >
-            -1 ? (
-            <Button style={{ marginLeft: "auto" }}>
-              <Ionicons size={24} name="md-person-outline" />
-            </Button>
-          ) : sent ? (
-            <Button style={{ marginLeft: "auto" }}>
-              <Ionicons size={24} name="checkbox" />
-            </Button>
-          ) : (
-            <Button style={{ marginLeft: "auto" }} onPress={sendFrReq}>
-              <Ionicons size={24} name="person-add-outline" />
-            </Button>
-          )}
-        </Card.Actions>
+            :
+            <Card.Actions mode="elevated">
+              {user?._id === me?._id ? (
+                edit ? (
+                  <Button onPress={() => setEdit(false)}>Go Back</Button>
+                ) : (
+                  <Button onPress={() => setEdit(true)}>Edit</Button>
+                )
+              ) : me?.friends?.findIndex((friend) => friend._id === user._id) >
+                -1 ? (
+                <Button style={{ marginLeft: "auto" }}>
+                  <Ionicons size={24} name="md-person-outline" />
+                </Button>
+              ) : sent ? (
+                <Button style={{ marginLeft: "auto" }}>
+                  <Ionicons size={24} name="checkbox" />
+                </Button>
+              ) : (
+                <Button style={{ marginLeft: "auto" }} onPress={sendFrReq}>
+                  <Ionicons size={24} name="person-add-outline" />
+                </Button>
+              )}
+            </Card.Actions>
+        }
         <Divider />
+
         <Card.Content>
           {edit ? (
             <>
@@ -174,15 +187,43 @@ export default function ProfileCard({
             </>
           ) : (
             <>
-              <Title>{user?.fullname}</Title>
-              <Title>{user?.email}</Title>
-              <Title>{user?.username}</Title>
-              <Title>{user?.address}</Title>
+              <Title>{user?.name ? user.name : user?.fullname}</Title>
+              {user.name ?
+                <>
+                  <Title> Members </Title>
+                  <View
+                    style={{ flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'flex-start' }}
+                  >
+                    {user.members.map(g => {
+                      return (
+                        <Chip
+                          key={g._id}
+                          type='outlined'
+                          avatar={g.image ?
+                            <Avatar.Image size={24} source={{ uri: g.image }} />
+                            :
+                            <Avatar.Text size={24} label={g.username.charAt(0)} />
+                          }
+                          onPress={() => removeFromGrp(g)}>{g.username}
+                        </Chip>
+                      )
+                    })}
+                  </View>
+                </>
+                :
+                <>
+                  <Title>{user?.email}</Title>
+                  <Title>{user?.username}</Title>
+                  <Title>{user?.address}</Title>
+                </>
+
+              }
+
             </>
           )}
         </Card.Content>
       </Card>
-    </View>
+    </View >
   );
 }
 
