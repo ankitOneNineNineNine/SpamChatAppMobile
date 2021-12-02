@@ -42,7 +42,6 @@ export default function MessageComponent({ msg, myID, modelOpen = () => { }, det
         <View style={styles.msgImgContainer}>
           {msg.images?.map((image, i) => (
             <TouchableOpacity onPress={()=>modelOpen(image)}>
-
               <Image
                 key={i}
                 source={{

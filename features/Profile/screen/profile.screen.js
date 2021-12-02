@@ -84,6 +84,9 @@ const Profile = ({ logout }) => {
       }
     }
   };
+
+  
+
   const editCredentialsChange = (name, text) => {
     setCredentials({ ...credentials, [name]: text });
   };

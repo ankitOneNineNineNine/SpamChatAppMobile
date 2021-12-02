@@ -69,6 +69,7 @@ function Chat({ navigation }) {
   };
 
   const modelOpen = (image) => {
+    console.log(mdlImg)
     setMdlImg(image)
     setOpen(true)
   }
@@ -225,6 +226,7 @@ function Chat({ navigation }) {
           <MessageComponent
             msg={item}
             modelOpen={modelOpen}
+            mdlImg = {mdlImg}
             myID={user?._id}
             key={item._id}
             details={true}

@@ -21,6 +21,12 @@ export default function Messages({ navigation }) {
       );
       msgs[friend._id] = thisUserMsg[thisUserMsg.length - 1];
     });
+    user?.groups.map((group) => {
+      let thisUserMsg = messages.filter(
+        (m) => m?.toGrp?._id === group._id
+      );
+      msgs[group._id] = thisUserMsg[thisUserMsg.length - 1];
+    });
     setDispMsgs(msgs);
   }, [messages, user]);
 
@@ -56,12 +62,15 @@ export default function Messages({ navigation }) {
                 <TouchableOpacity
                   onPress={() =>
                     goToChat(
-                      user.friends.filter((friend) => friend._id === item)[0]
+                      dispMsgs[item].toGrp ?
+                        user.groups.filter((group) => group._id === item)[0]
+                        :
+                        user.friends.filter((friend) => friend._id === item)[0]
                     )
                   }
                 >
                   {!dispMsgs[item].seen &&
-                  dispMsgs[item].from._id !== user?._id ? (
+                    dispMsgs[item].from._id !== user?._id ? (
                     <Button
                       mode="contained"
                       compact
