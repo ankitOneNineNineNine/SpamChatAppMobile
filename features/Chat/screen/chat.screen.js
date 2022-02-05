@@ -45,7 +45,7 @@ import * as ImageManipulator from 'expo-image-manipulator'
 
 function Chat({ navigation }) {
   const listRef = useRef(null);
-  const [msgNav, setMsgNav] = useState("inbox");
+  const [msgNav, setMsgNav] = useState("ham");
   const userState = useSelector((state) => state.user);
   const { user, isLoading } = userState;
   const [mdlImg, setMdlImg] = useState(null)
@@ -58,6 +58,13 @@ function Chat({ navigation }) {
   const { socket, setSocket } = useContext(SocketContext);
   const dispatch = useDispatch();
 
+
+  useEffect(() => {
+    (async () => {
+      await tf.ready();
+      await tf.setBackend('cpu');
+    })()
+  }, [])
   const selectImage = async () => {
     let permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -116,17 +123,18 @@ function Chat({ navigation }) {
       offset += 4;
 
     }
-    tf.tensor3d(buffer, [height, width, 3]).expandDims(0);
-    return tf.image.resize(test_img, [224, 224])
+    return tf.tensor3d(buffer, [height, width, 3]).expandDims(0);
+
   }
 
   const classify = async (image) => {
     try {
-      await tf.ready();
-      await tf.setBackend('cpu');
-      image = await ImageManipulator.manipulateAsync(image, uri, {
-        resize: { width: 224, height: 224 }
-      })
+
+      image = await ImageManipulator.manipulateAsync(
+        image.uri,
+        [{ resize: { width: 224, height: 224 } }],
+        { compress: 0.7, }
+      );
       const imageAssetPath = Image.resolveAssetSource(image)
       const imgB64 = await FileSystem.readAsStringAsync(imageAssetPath.uri, {
         encoding: FileSystem.EncodingType.Base64,
@@ -138,7 +146,7 @@ function Chat({ navigation }) {
       let model = await modelInit();
       let prediction = await model.predict(imageTensor);
       let predVal = prediction.arraySync()[0][0];
-      console.log(predVal)
+      return predVal === 0 ? 'ham' : 'spam'
       // console.log(response)
       // // const response = Image.resolveAssetSource(imagePng).uri 
       // const rawImageData = await response.arrayBuffer();
@@ -206,7 +214,7 @@ function Chat({ navigation }) {
         let localUri = image.uri;
         let filename = localUri.split('/').pop();
         const pred = await classify(image);
-        console.log(pred)
+        formData.append('prediction', pred)
 
         let match = /\.(\w+)$/.exec(filename);
         let type = match ? `image/${match[1]}` : `image`;
@@ -215,15 +223,15 @@ function Chat({ navigation }) {
           uri: localUri, name: filename, type
         });
       });
-      // POST("/messages/", formData, true, "multipart/form-data")
-      //   .then((data) => {
+      POST("/messages/", formData, true, "multipart/form-data")
+        .then((data) => {
 
-      //     socket.emit("imgMsg", data);
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //     displayError(err?.response?.data?.message);
-      //   });
+          socket.emit("imgMsg", data);
+        })
+        .catch((err) => {
+          console.log(err);
+          displayError(err?.response?.data?.message);
+        });
     } else {
       let receiver = currentMsging.fullname
         ? {
@@ -265,6 +273,7 @@ function Chat({ navigation }) {
       });
     }
   }
+  let dispMessage = filteredMessages.filter(msg=>msg.prediction === msgNav)
   if (!user || !currentMsging) {
     return (
       <ActivityIndicator
@@ -307,9 +316,9 @@ function Chat({ navigation }) {
         <View style={styles.msgsNav}>
           <Chip
             type="outlined"
-            selected={msgNav === "inbox"}
+            selected={msgNav === "ham"}
             icon="inbox"
-            onPress={() => setMsgNav("inbox")}
+            onPress={() => setMsgNav("ham")}
           >
             Inbox
           </Chip>
@@ -332,7 +341,7 @@ function Chat({ navigation }) {
         onContentSizeChange={() =>
           listRef.current.scrollToEnd({ animating: false })
         }
-        data={filteredMessages}
+        data={dispMessage}
         renderItem={({ item, i }) => (
           <MessageComponent
             msg={item}
