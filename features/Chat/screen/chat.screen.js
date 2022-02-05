@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Pressable,
 } from "react-native";
+import { Asset } from 'expo-asset'
 import {
   Chip,
   Appbar,
@@ -40,19 +41,7 @@ import { Platform } from "react-native";
 import { POST } from "../../../adapters/http.adapter";
 import { displayError } from "../../../common/toaster";
 import * as jpeg from 'jpeg-js';
-
-const modelJSON = require('../../../assets/NEWJSON2/model.json');
-const modelWeights1 = require('../../../assets/NEWJSON2/group1-shard1of10.bin');
-const modelWeights2 = require('../../../assets/NEWJSON2/group1-shard2of10.bin');
-const modelWeights3 = require('../../../assets/NEWJSON2/group1-shard3of10.bin');
-const modelWeights4 = require('../../../assets/NEWJSON2/group1-shard4of10.bin');
-const modelWeights5 = require('../../../assets/NEWJSON2/group1-shard5of10.bin');
-const modelWeights6 = require('../../../assets/NEWJSON2/group1-shard6of10.bin');
-const modelWeights7 = require('../../../assets/NEWJSON2/group1-shard7of10.bin');
-const modelWeights8 = require('../../../assets/NEWJSON2/group1-shard8of10.bin');
-const modelWeights9 = require('../../../assets/NEWJSON2/group1-shard9of10.bin');
-const modelWeights10 = require('../../../assets/NEWJSON2/group1-shard10of10.bin');
-
+import * as ImageManipulator from 'expo-image-manipulator'
 
 function Chat({ navigation }) {
   const listRef = useRef(null);
@@ -104,19 +93,12 @@ function Chat({ navigation }) {
       }
     }
     tf.serialization.registerClass(L2);
-   
-    var model = await tf.loadGraphModel(bundleResourceIO(modelJSON, [
-      modelWeights1,
-      modelWeights2,
-      modelWeights3,
-      modelWeights4,
-      modelWeights5,
-      modelWeights6,
-      modelWeights7,
-      modelWeights8,
-      modelWeights9,
-      modelWeights10
-    ]));
+    const modelJSON = require('../../../assets/model.json');
+    // Expo.Asset.fromModule(require("./assets/markdown/test-1.md"))
+    const modelWeights = await require('../../../assets/group1_shards.bin');
+    // const modelWeights =  Asset.fromModule(require('../../../assets/NEWJSON2/group1_shards.bin'))
+
+    let model = await tf.loadLayersModel(bundleResourceIO(modelJSON, modelWeights));
 
     return model;
   }
@@ -134,13 +116,17 @@ function Chat({ navigation }) {
       offset += 4;
 
     }
-    return tf.tensor3d(buffer, [height, width, 3])
+    tf.tensor3d(buffer, [height, width, 3]).expandDims(0);
+    return tf.image.resize(test_img, [224, 224])
   }
 
   const classify = async (image) => {
     try {
       await tf.ready();
-      await tf.setBackend('cpu')
+      await tf.setBackend('cpu');
+      image = await ImageManipulator.manipulateAsync(image, uri, {
+        resize: { width: 224, height: 224 }
+      })
       const imageAssetPath = Image.resolveAssetSource(image)
       const imgB64 = await FileSystem.readAsStringAsync(imageAssetPath.uri, {
         encoding: FileSystem.EncodingType.Base64,
