@@ -83,11 +83,11 @@ export default function ProfileCard({
       // padding:500
     }}>
       <Card>
-        {edit && user.name ?
+        {edit && user?.name ?
           null
           : <>
             <Card.Title
-              title={user && user.name ? user.name : user?.fullname}
+              title={user && user?.name ? user?.name : user?.fullname}
               subtitle={user?.status}
               left={(props) =>
                 user?.image ? (
@@ -98,7 +98,7 @@ export default function ProfileCard({
                     }}
                   />
                 ) : (
-                  <Avatar.Text size={45} label={user && user.name ? user.name.charAt(0) : user.fullname.charAt(0)} />
+                  <Avatar.Text size={45} label={user && user?.name ? user?.name.charAt(0) : user.fullname.charAt(0)} />
                 )
               }
             />
@@ -119,7 +119,7 @@ export default function ProfileCard({
           </>}
 
         {
-          user.name ?
+          user?.name ?
             user?.admins.indexOf(me?._id) >= 0 && (
               edit ? (
                 <Button onPress={() => setEdit(false)}>Go Back</Button>
@@ -154,7 +154,7 @@ export default function ProfileCard({
         <Divider />
 
         <Card.Content>
-          {edit && !user.name ?
+          {edit && !user?.name ?
 
             (
               <>
@@ -198,8 +198,8 @@ export default function ProfileCard({
             )
             : (
               <>
-                <Title>{user?.name ? user.name : user?.fullname}</Title>
-                {user.name ?
+                <Title>{user?.name ? user?.name : user?.fullname}</Title>
+                {user?.name ?
                   <>
                     <Title> Members </Title>
                     <View
@@ -235,7 +235,7 @@ export default function ProfileCard({
         </Card.Content>
       </Card>
       {
-        edit && user.name && <CreateGroup edit={true} />
+        edit && user?.name && <CreateGroup edit={true} />
       }
     </View >
   );

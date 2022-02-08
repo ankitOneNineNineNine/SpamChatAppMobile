@@ -41,7 +41,11 @@ import { Platform } from "react-native";
 import { POST } from "../../../adapters/http.adapter";
 import { displayError } from "../../../common/toaster";
 import * as jpeg from 'jpeg-js';
+// import Tesseract from 'tesseract.js';
 import * as ImageManipulator from 'expo-image-manipulator'
+import Constants from 'expo-constants';
+
+
 
 function Chat({ navigation }) {
   const listRef = useRef(null);
@@ -57,12 +61,15 @@ function Chat({ navigation }) {
   const currentMsging = useSelector((state) => state.currentMsging.info);
   const { socket, setSocket } = useContext(SocketContext);
   const dispatch = useDispatch();
-
+  const [model, setModel] = useState(null)
+  const { manifest } = Constants;
 
   useEffect(() => {
     (async () => {
-      await tf.ready();
       await tf.setBackend('cpu');
+      await tf.ready();
+      let model = await modelInit();
+      setModel(model);
     })()
   }, [])
   const selectImage = async () => {
@@ -91,23 +98,29 @@ function Chat({ navigation }) {
 
 
   const modelInit = async () => {
-    class L2 {
+    try {
+      await tf.ready();
+      await tf.setBackend('cpu');
+      class L2 {
 
-      static className = 'L2';
+        static className = 'L2';
 
-      constructor(config) {
-        return tf.regularizers.l1l2(config)
+        constructor(config) {
+          return tf.regularizers.l1l2(config)
+        }
       }
+      tf.serialization.registerClass(L2);
+      const modelJSON = require('../../../assets/model.json');
+      // Expo.Asset.fromModule(require("./assets/markdown/test-1.md"))
+      const modelWeights = await require('../../../assets/group1_shards.bin');
+      // const modelWeights =  Asset.fromModule(require('../../../assets/NEWJSON2/group1_shards.bin'))
+      let model = await tf.loadLayersModel(bundleResourceIO(modelJSON, modelWeights));
+
+      return model;
     }
-    tf.serialization.registerClass(L2);
-    const modelJSON = require('../../../assets/model.json');
-    // Expo.Asset.fromModule(require("./assets/markdown/test-1.md"))
-    const modelWeights = await require('../../../assets/group1_shards.bin');
-    // const modelWeights =  Asset.fromModule(require('../../../assets/NEWJSON2/group1_shards.bin'))
-
-    let model = await tf.loadLayersModel(bundleResourceIO(modelJSON, modelWeights));
-
-    return model;
+    catch (e) {
+      console.log(e)
+    }
   }
 
 
@@ -135,72 +148,42 @@ function Chat({ navigation }) {
         [{ resize: { width: 224, height: 224 } }],
         { compress: 0.7, }
       );
+
       const imageAssetPath = Image.resolveAssetSource(image)
+
       const imgB64 = await FileSystem.readAsStringAsync(imageAssetPath.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+
       const imgBuffer = tf.util.encodeString(imgB64, 'base64').buffer;
       const raw = new Uint8Array(imgBuffer)
       const imageTensor = imageToTensor(raw);
+
       // console.log('imageTensor: ', imageTensor);
-      let model = await modelInit();
-      let prediction = await model.predict(imageTensor);
-      let predVal = prediction.arraySync()[0][0];
-      return predVal === 0 ? 'ham' : 'spam'
-      // console.log(response)
-      // // const response = Image.resolveAssetSource(imagePng).uri 
-      // const rawImageData = await response.arrayBuffer();
-      // const tensor = imageToTensor(rawImageData);
       // let model = await modelInit();
-      // let prediction = await model.predict(tensor)
-      // let predVal = prediction.arraySync()[0][0];
-      // console.log(predVal)
+
+      let prediction = await model.predict(imageTensor);
+
+      let predVal = prediction.arraySync()[0][0];
+
+      return predVal === 0 ? 'ham' : 'spam'
+
     }
     catch (e) {
       console.log(e)
     }
   }
-
-  // const handleCanvas = canvas => {
-  //   const image = new CanvasImage(canvas);
-  //   canvas.width = 224;
-  //   canvas.height = 224;
-
-  //   const context = canvas.getContext('2d');
-
-  //   image.src = images[0];
-  //   // RNimage.resolveAssetSource(imagePng).uri 
-
-
-  //   image.addEventListener('load', () => {
-  //     // debugger
-  //     console.log('image is loaded');
-  //     context.drawImage(image, 0, 0);
-  //     const tensor = tf.browser
-  //       .fromPixels(canvas)
-  //       // .div(255)
-  //       .toFloat()
-  //       .expandDims(0);
-
-
-  //     let result = predVal ? 'spam' : 'ham';
-  //     setPred(result)
-
-  //   });
-  // }
-
-
   const removeImage = (i) => {
     let imgs = [...images];
     imgs.splice(i, 1);
 
     setImages(imgs);
   };
-  const messageSend = () => {
+  const messageSend = async () => {
     if (!textMsg.length && !images.length) {
       return;
     }
-
+    // console.log('here')
     if (images.length) {
       let formData = new FormData();
       formData.append("textMsg", textMsg);
@@ -210,19 +193,48 @@ function Chat({ navigation }) {
       } else {
         formData.append("toGrp", currentMsging._id);
       }
-      images.forEach(async (image) => {
-        let localUri = image.uri;
-        let filename = localUri.split('/').pop();
-        const pred = await classify(image);
-        formData.append('prediction', pred)
+      let spam = false;
 
-        let match = /\.(\w+)$/.exec(filename);
-        let type = match ? `image/${match[1]}` : `image`;
+      // images.forEach(async (image, i) => {
+      let localUri = images[0].uri;
+      let filename = localUri.split('/').pop();
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`;
 
-        formData.append("images", {
-          uri: localUri, name: filename, type
-        });
+      formData.append("images", {
+        uri: localUri, name: filename, type
       });
+
+      // let re = await POST(`http://${manifest.debuggerHost.split(':').shift()}:3000/imgPredict`, formData);
+      // console.log(re)
+
+      const pred = await classify(images[0]);
+     
+      if (pred !== 'ham') {
+        formData.append('prediction', pred)
+      }
+      // else {
+      //   let { data: { text } } = await Tesseract.recognize(
+      //     image,
+      //     'eng',
+      //     { logger: m => { } }
+      //   )
+      //   console.log(text)
+      //   // let result = await POST(`http://192.168.1.65:8000/predict?line=${text}`);
+      //   // console.log(text)
+      //   let result = {
+      //     Prediction: 'ham'
+      //   }
+      //   if (result.prediction !== 'ham') {
+      //     formData.append("prediction", result.Prediction)
+      //     spam = true;
+      //   }
+      // }
+
+
+
+      // });
+
       POST("/messages/", formData, true, "multipart/form-data")
         .then((data) => {
 
@@ -232,20 +244,40 @@ function Chat({ navigation }) {
           console.log(err);
           displayError(err?.response?.data?.message);
         });
+
     } else {
-      let receiver = currentMsging.fullname
-        ? {
-          toInd: currentMsging._id,
-        }
-        : {
-          toGrp: currentMsging._id,
+
+
+      try {
+
+        let result = await POST(`http://${manifest.debuggerHost.split(':').shift()}:3000/predict`, {
+          textMsg
+        });
+
+
+
+        // let result = {
+        //   Prediction: 'ham'
+        // }
+        let receiver = currentMsging.fullname
+          ? {
+            toInd: currentMsging._id,
+          }
+          : {
+            toGrp: currentMsging._id,
+          };
+        let msg = {
+          ...receiver,
+          from: user?._id,
+          text: textMsg,
+          prediction: result.Prediction
         };
-      let msg = {
-        ...receiver,
-        from: user?._id,
-        text: textMsg,
-      };
-      socket.emit("msgS", msg);
+        socket.emit("msgS", msg);
+
+      }
+      catch (e) {
+        console.log(e)
+      }
     }
     setTextMsg("");
     setImages([]);
@@ -273,8 +305,9 @@ function Chat({ navigation }) {
       });
     }
   }
-  let dispMessage = filteredMessages.filter(msg=>msg.prediction === msgNav)
-  if (!user || !currentMsging) {
+
+  let dispMessage = filteredMessages.filter(msg => msg.prediction === msgNav)
+  if (!user || !currentMsging || !model) {
     return (
       <ActivityIndicator
         style={{ marginTop: 40 }}
